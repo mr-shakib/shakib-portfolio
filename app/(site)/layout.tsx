@@ -5,11 +5,13 @@ import { Footer } from "@/components/layout/Footer";
 import { ScrollProgress } from "@/components/layout/ScrollProgress";
 import { CustomCursor } from "@/components/layout/CustomCursor";
 import { BackgroundScene } from "@/components/three/BackgroundScene";
+import { RouteShape } from "@/components/three/RouteShape";
 
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   return (
     <SmoothScrollProvider>
       <BackgroundScene />
+      <RouteShape />
       <ScrollProgress />
       <CustomCursor />
       <Navbar />

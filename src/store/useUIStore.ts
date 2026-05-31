@@ -15,6 +15,10 @@ interface UIState {
   /** Normalized scroll progress (0..1) shared with the 3D scene for depth parallax. */
   scrollProgress: number;
   setScrollProgress: (value: number) => void;
+
+  /** Name of the form the background particles should morph into, set per section. */
+  bgShape: string;
+  setBgShape: (shape: string) => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -30,4 +34,7 @@ export const useUIStore = create<UIState>((set) => ({
 
   scrollProgress: 0,
   setScrollProgress: (value) => set({ scrollProgress: value }),
+
+  bgShape: "globe",
+  setBgShape: (shape) => set((s) => (s.bgShape === shape ? s : { bgShape: shape })),
 }));

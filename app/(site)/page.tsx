@@ -11,6 +11,7 @@ import { ContactSection } from "@/components/sections/ContactSection";
 import { VelocityMarquee } from "@/components/shared/VelocityMarquee";
 import { ParallaxBanner } from "@/components/shared/ParallaxBanner";
 import { ScrollHighlightText } from "@/components/shared/ScrollHighlightText";
+import { SectionShape } from "@/components/three/SectionShape";
 
 import { getFeaturedProjects } from "@/lib/data/projects";
 import { getFeaturedPublication } from "@/lib/data/publications";
@@ -28,7 +29,12 @@ export default async function HomePage() {
   return (
     <>
       <Loader />
-      <HeroSection />
+
+      <div className="relative">
+        <SectionShape shape="globe" />
+        <HeroSection />
+      </div>
+
       <VelocityMarquee
         items={[
           "Machine Learning",
@@ -41,37 +47,65 @@ export default async function HomePage() {
         className="bg-surface/40"
         textClassName="font-display text-4xl text-foreground/80 md:text-6xl"
       />
-      <AboutSection />
-      <StatsSection />
+
+      <div className="relative">
+        <SectionShape shape="figure" />
+        <AboutSection />
+      </div>
+
+      <div className="relative">
+        <SectionShape shape="bars" />
+        <StatsSection />
+      </div>
+
       <ScrollHighlightText
         eyebrow="Mission"
         text="I build intelligent systems that turn messy, real-world data into reliable decisions — and I publish the datasets and methods so others can build on them too."
       />
-      <FeaturedPublicationSection publication={publication} />
-      <ResearchAreasSection areas={areas} />
-      <FeaturedProjectsSection projects={projects} />
+
+      <div className="relative">
+        <SectionShape shape="leaf" />
+        <FeaturedPublicationSection publication={publication} />
+      </div>
+
+      <div className="relative">
+        <SectionShape shape="helix" />
+        <ResearchAreasSection areas={areas} />
+      </div>
+
+      <div className="relative">
+        <SectionShape shape="lattice" />
+        <FeaturedProjectsSection projects={projects} />
+      </div>
+
       <ParallaxBanner
         image="https://picsum.photos/seed/shakib-vision/1920/1080"
         eyebrow="Approach"
         headline="Research-grade rigor, product-grade craft."
         subtext="Every project is shipped end-to-end and every result is reproducible — the same standards whether it’s a paper or a platform."
       />
-      <SkillsSection />
+
+      <div className="relative">
+        <SectionShape shape="atom" />
+        <SkillsSection />
+      </div>
+
       <VelocityMarquee
         items={["Let’s build something", "Let’s research together", "Open to collaboration"]}
         baseVelocity={2}
         className="border-y border-border"
         textClassName="font-display text-4xl text-gradient-accent md:text-6xl"
       />
-      <AchievementsSection achievements={achievements} />
-      <ParallaxBanner
-        image="https://picsum.photos/seed/shakib-research/1920/1080"
-        eyebrow="Currently"
-        headline="Building trustworthy AI for agriculture & healthcare."
-        subtext="Open to research collaborations and MSc supervision. Let’s push what machine learning can do for the real world."
-        cta={{ label: "Start a conversation", href: "/contact" }}
-      />
-      <ContactSection />
+
+      <div className="relative">
+        <SectionShape shape="trend" />
+        <AchievementsSection achievements={achievements} />
+      </div>
+
+      <div className="relative">
+        <SectionShape shape="envelope" />
+        <ContactSection />
+      </div>
     </>
   );
 }
