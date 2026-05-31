@@ -3,6 +3,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { useUIStore } from "@/store/useUIStore";
 
 interface DepthParticlesProps {
   /** Particles per layer. */
@@ -13,12 +14,13 @@ interface DepthParticlesProps {
 }
 
 /**
- * Multiple flat particle planes at increasing depth. Because they sit at
- * different Z, the scroll-driven camera dolly moves near layers faster than far
- * ones — classic depth parallax. Each layer drifts slowly for life.
+ * Multiple particle planes at increasing depth. Because they sit at different Z,
+ * the scroll-driven camera dolly moves near layers faster than far ones — depth
+ * parallax. Additionally, each layer fades/spreads IN as you scroll, so the
+ * field is revealed rather than just present.
  */
 export function DepthParticles({ count = 220, layers = 4, color = "#c6f135" }: DepthParticlesProps) {
-  const groupRefs = useRef<(THREE.Points | null)[]>([]);
+  const groupRefs = useRef<Array<THREE.Points | null>>([]);
 
   const layerData = useMemo(() => {
     return Array.from({ length: layers }, (_, layer) => {
@@ -41,9 +43,16 @@ export function DepthParticles({ count = 220, layers = 4, color = "#c6f135" }: D
 
   useFrame((_, delta) => {
     const dt = Math.min(delta, 0.05);
+    const progress = useUIStore.getState().scrollProgress;
     layerData.forEach((l, i) => {
       const pts = groupRefs.current[i];
-      if (pts) pts.rotation.z += l.drift * dt;
+      if (!pts) return;
+      pts.rotation.z += l.drift * dt;
+      // Reveal: particles spread out + brighten as the page is scrolled.
+      const reveal = 0.6 + progress * 0.6;
+      pts.scale.setScalar(THREE.MathUtils.lerp(pts.scale.x, reveal, 0.06));
+      const mat = pts.material as THREE.PointsMaterial;
+      mat.opacity = THREE.MathUtils.lerp(mat.opacity, l.opacity * (0.4 + progress * 0.9), 0.06);
     });
   });
 
@@ -52,7 +61,7 @@ export function DepthParticles({ count = 220, layers = 4, color = "#c6f135" }: D
       {layerData.map((l, i) => (
         <points
           key={i}
-          ref={(el) => {
+          ref={(el: THREE.Points | null) => {
             groupRefs.current[i] = el;
           }}
         >

@@ -3,6 +3,7 @@
 import { useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
+import { useUIStore } from "@/store/useUIStore";
 
 interface ShapeDef {
   kind: "icosahedron" | "octahedron" | "torus" | "dodecahedron";
@@ -83,12 +84,22 @@ export function FloatingGeometry({
   useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
     const dt = Math.min(delta, 0.05);
+    const progress = useUIStore.getState().scrollProgress;
     shapes.forEach((s, i) => {
       const mesh = refs.current[i];
       if (!mesh) return;
       mesh.rotation.x += s.rotationSpeed[0] * dt;
       mesh.rotation.y += s.rotationSpeed[1] * dt;
       mesh.position.y = s.position[1] + Math.sin(t * s.floatSpeed + i) * s.floatAmp;
+
+      // Reveal: each shape scales up from near-zero and brightens as you scroll,
+      // staggered by depth so they materialize one wave at a time.
+      const stagger = i / shapes.length;
+      const local = THREE.MathUtils.clamp((progress - stagger * 0.4) / 0.5, 0, 1);
+      const targetScale = s.scale * (0.05 + local * 0.95);
+      mesh.scale.setScalar(THREE.MathUtils.lerp(mesh.scale.x, targetScale, 0.07));
+      const mMat = mesh.material as THREE.MeshBasicMaterial;
+      mMat.opacity = THREE.MathUtils.lerp(mMat.opacity, 0.05 + local * 0.25, 0.07);
     });
     if (group.current) {
       group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, pointer.x * 0.15, 0.04);
