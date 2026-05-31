@@ -3,6 +3,22 @@
  * Imported by SEO builders, the navbar, the footer and structured data.
  */
 
+/**
+ * Resolve the canonical site URL with sensible fallbacks so OG images, canonical
+ * tags and the sitemap are correct out-of-the-box on Vercel:
+ *   1. NEXT_PUBLIC_SITE_URL        — explicit, preferred (e.g. custom domain)
+ *   2. VERCEL_PROJECT_PRODUCTION_URL — stable production URL Vercel injects
+ *   3. VERCEL_URL                   — per-deployment preview URL
+ *   4. localhost                    — local dev
+ */
+function resolveSiteUrl(): string {
+  if (process.env.NEXT_PUBLIC_SITE_URL) return process.env.NEXT_PUBLIC_SITE_URL;
+  if (process.env.VERCEL_PROJECT_PRODUCTION_URL)
+    return `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`;
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return "http://localhost:3000";
+}
+
 export const siteConfig = {
   name: "Shakib Howlader",
   shortName: "Shakib",
@@ -10,7 +26,7 @@ export const siteConfig = {
   tagline: "Researcher · Developer · AI Enthusiast · Problem Solver",
   description:
     "Computer Science engineer and researcher building at the intersection of machine learning, computer vision and software engineering. Publications, research and interactive projects.",
-  url: process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+  url: resolveSiteUrl(),
   locale: "en_US",
   email: "contactshakibhere@gmail.com",
   jobTitle: "Computer Science Engineer & Researcher",
