@@ -59,7 +59,7 @@ export default async function HomePage() {
       <SkillsSection />
       <VelocityMarquee
         items={["Let’s build something", "Let’s research together", "Open to collaboration"]}
-        baseVelocity={16}
+        baseVelocity={2}
         className="border-y border-border"
         textClassName="font-display text-4xl text-gradient-accent md:text-6xl"
       />
