@@ -42,6 +42,26 @@ export function BackgroundScene() {
     return () => window.removeEventListener("pointermove", onMove);
   }, [reduced, setPointer]);
 
+  // Feed scroll progress to the 3D camera rig for depth parallax.
+  useEffect(() => {
+    if (reduced) return;
+    const setScrollProgress = useUIStore.getState().setScrollProgress;
+    let raf = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const max = document.documentElement.scrollHeight - window.innerHeight;
+        setScrollProgress(max > 0 ? Math.min(window.scrollY / max, 1) : 0);
+      });
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, [reduced]);
+
   if (reduced || !mounted) {
     // Static fallback: a subtle radial glow, no WebGL.
     return (

@@ -11,6 +11,10 @@ interface UIState {
   /** Normalized pointer position (-1..1) shared with the 3D scene. */
   pointer: { x: number; y: number };
   setPointer: (x: number, y: number) => void;
+
+  /** Normalized scroll progress (0..1) shared with the 3D scene for depth parallax. */
+  scrollProgress: number;
+  setScrollProgress: (value: number) => void;
 }
 
 export const useUIStore = create<UIState>((set) => ({
@@ -23,4 +27,7 @@ export const useUIStore = create<UIState>((set) => ({
 
   pointer: { x: 0, y: 0 },
   setPointer: (x, y) => set({ pointer: { x, y } }),
+
+  scrollProgress: 0,
+  setScrollProgress: (value) => set({ scrollProgress: value }),
 }));
