@@ -63,17 +63,13 @@ export function MorphingParticles({
 
     if (group.current) {
       const t = state.clock.elapsedTime;
-      // Slow auto-spin + pointer parallax keeps the shape readable in 3D.
-      group.current.rotation.y = THREE.MathUtils.lerp(
-        group.current.rotation.y,
-        pointer.x * 0.35 + t * 0.06,
-        0.04,
-      );
-      group.current.rotation.x = THREE.MathUtils.lerp(
-        group.current.rotation.x,
-        -pointer.y * 0.25,
-        0.04,
-      );
+      // The forms are flat front-facing silhouettes, so we only gently SWAY
+      // (never full-spin, which would turn them edge-on into a line). A small
+      // oscillation + pointer parallax gives life and a hint of depth.
+      const swayY = Math.sin(t * 0.4) * 0.18 + pointer.x * 0.25;
+      const swayX = Math.cos(t * 0.3) * 0.08 - pointer.y * 0.18;
+      group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, swayY, 0.05);
+      group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, swayX, 0.05);
     }
   });
 
