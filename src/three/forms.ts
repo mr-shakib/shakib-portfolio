@@ -1,29 +1,19 @@
 /**
  * Particle form generators.
  *
- * For *perfect* recognizability we don't approximate shapes with math — we draw
- * the real icon glyph to an offscreen canvas, read its alpha channel, and sample
- * particle positions from the opaque pixels. The result is a crisp silhouette of
- * the actual symbol (leaf, DNA, envelope, gear…), mapped into 3D.
+ * For *perfect*, device-independent recognizability we sample particles from
+ * hand-authored SVG path silhouettes (src/three/shapePaths.ts) — not system
+ * emoji, which render as tofu rectangles when a glyph is unavailable. Each path
+ * is filled to an offscreen canvas; particles are scattered over the opaque
+ * pixels, giving a crisp silhouette of the symbol.
  *
  * Sampling is client-only (needs <canvas>); a circle fallback covers SSR.
  */
+import { SHAPE_PATHS } from "@/three/shapePaths";
 
-/** Each named shape maps to the glyph whose silhouette it samples. */
-const GLYPHS: Record<string, string> = {
-  globe: "🌐",
-  figure: "🧍",
-  bars: "📊",
-  helix: "🧬",
-  leaf: "🍃",
-  lattice: "⚙️",
-  atom: "⚛️",
-  trend: "📈",
-  envelope: "✉️",
-};
-
-const FIT = 11; // target world size the silhouette is scaled to fit
+const FIT = 11; // world size the silhouette is scaled to fit
 const DEPTH = 0.5; // small z spread so it reads with a little volume
+const VIEWBOX = 100; // SVG path coordinate space
 
 function circleFallback(count: number): Float32Array {
   const a = new Float32Array(count * 3);
@@ -39,11 +29,13 @@ function circleFallback(count: number): Float32Array {
   return a;
 }
 
-/** Draw a glyph, read its alpha mask, and sample `count` points from it. */
-function sampleGlyph(glyph: string, count: number): Float32Array {
-  if (typeof document === "undefined") return circleFallback(count);
+/** Fill an SVG path to a canvas, read its mask, and sample `count` points. */
+function samplePath(pathData: string, count: number): Float32Array {
+  if (typeof document === "undefined" || typeof Path2D === "undefined") {
+    return circleFallback(count);
+  }
 
-  const SIZE = 240;
+  const SIZE = 256;
   const canvas = document.createElement("canvas");
   canvas.width = SIZE;
   canvas.height = SIZE;
@@ -52,20 +44,17 @@ function sampleGlyph(glyph: string, count: number): Float32Array {
 
   ctx.clearRect(0, 0, SIZE, SIZE);
   ctx.fillStyle = "#ffffff";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "middle";
-  ctx.font = `${Math.floor(SIZE * 0.78)}px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", "Twemoji Mozilla", sans-serif`;
-  ctx.fillText(glyph, SIZE / 2, SIZE / 2 + SIZE * 0.04);
+  const s = SIZE / VIEWBOX;
+  ctx.setTransform(s, 0, 0, s, 0, 0);
+  ctx.fill(new Path2D(pathData), "evenodd");
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
 
   const data = ctx.getImageData(0, 0, SIZE, SIZE).data;
 
-  // Collect opaque pixel coordinates.
   const pts: number[] = [];
   for (let y = 0; y < SIZE; y++) {
     for (let x = 0; x < SIZE; x++) {
-      if (data[(y * SIZE + x) * 4 + 3]! > 50) {
-        pts.push(x, y);
-      }
+      if (data[(y * SIZE + x) * 4 + 3]! > 50) pts.push(x, y);
     }
   }
   const n = pts.length / 2;
@@ -77,7 +66,6 @@ function sampleGlyph(glyph: string, count: number): Float32Array {
     const p = (Math.random() * n) | 0;
     const px = pts[p * 2]!;
     const py = pts[p * 2 + 1]!;
-    // jitter within the source pixel so particles don't grid-align
     out[i * 3] = (px - SIZE / 2 + Math.random()) * scale;
     out[i * 3 + 1] = -(py - SIZE / 2 + Math.random()) * scale; // flip Y (screen→world)
     out[i * 3 + 2] = (Math.random() - 0.5) * DEPTH;
@@ -91,8 +79,8 @@ export function getForm(name: string, count: number): Float32Array {
   const key = `${name}:${count}`;
   const hit = cache.get(key);
   if (hit) return hit;
-  const glyph = GLYPHS[name] ?? GLYPHS.globe!;
-  const data = sampleGlyph(glyph, count);
+  const path = SHAPE_PATHS[name] ?? SHAPE_PATHS.globe!;
+  const data = samplePath(path, count);
   cache.set(key, data);
   return data;
 }
@@ -120,4 +108,4 @@ export function center(arr: Float32Array): Float32Array {
   return out;
 }
 
-export const SHAPE_NAMES = Object.keys(GLYPHS);
+export { SHAPE_NAMES } from "@/three/shapePaths";
