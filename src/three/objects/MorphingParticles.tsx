@@ -38,10 +38,15 @@ export function MorphingParticles({
     target.set(start);
   }, [count, current, target]);
 
+  // Track the active shape so we can give volumetric forms (globe, helix) a
+  // real 3D spin while flat silhouettes only sway.
+  const shapeRef = useRef<string>(useUIStore.getState().bgShape);
+
   // When bgShape changes, recompute the target form.
   useEffect(() => {
     const unsub = useUIStore.subscribe((state, prev) => {
       if (state.bgShape !== prev.bgShape) {
+        shapeRef.current = state.bgShape;
         target.set(center(getForm(state.bgShape, count)));
       }
     });
@@ -63,13 +68,37 @@ export function MorphingParticles({
 
     if (group.current) {
       const t = state.clock.elapsedTime;
-      // The forms are flat front-facing silhouettes, so we only gently SWAY
-      // (never full-spin, which would turn them edge-on into a line). A small
-      // oscillation + pointer parallax gives life and a hint of depth.
-      const swayY = Math.sin(t * 0.4) * 0.18 + pointer.x * 0.25;
-      const swayX = Math.cos(t * 0.3) * 0.08 - pointer.y * 0.18;
-      group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, swayY, 0.05);
-      group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, swayX, 0.05);
+      const shape = shapeRef.current;
+      const volumetric = shape === "globe" || shape === "helix";
+
+      if (volumetric) {
+        // Real, continuous 3D rotation so the sphere/helix reads as a solid.
+        group.current.rotation.y += dt * 0.5 + pointer.x * 0.004;
+        group.current.rotation.x = THREE.MathUtils.lerp(
+          group.current.rotation.x,
+          -pointer.y * 0.2,
+          0.05,
+        );
+      } else {
+        // Flat silhouettes: gentle sway only (a full spin would go edge-on).
+        const swayY = Math.sin(t * 0.4) * 0.18 + pointer.x * 0.25;
+        const swayX = Math.cos(t * 0.3) * 0.08 - pointer.y * 0.18;
+        group.current.rotation.y = THREE.MathUtils.lerp(group.current.rotation.y, swayY, 0.05);
+        group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, swayX, 0.05);
+      }
+
+      // The globe "beats" — a continuous heartbeat-style pulse in scale.
+      if (shape === "globe") {
+        // double-thump heartbeat: a sharp beat then a smaller echo per cycle
+        const cycle = (t * 1.1) % 1; // ~1.1 beats/sec
+        const thump =
+          Math.exp(-Math.pow((cycle - 0.0) * 6, 2)) +
+          0.6 * Math.exp(-Math.pow((cycle - 0.22) * 6, 2));
+        const beat = 1 + thump * 0.08;
+        group.current.scale.setScalar(THREE.MathUtils.lerp(group.current.scale.x, beat, 0.3));
+      } else {
+        group.current.scale.setScalar(THREE.MathUtils.lerp(group.current.scale.x, 1, 0.1));
+      }
     }
   });
 

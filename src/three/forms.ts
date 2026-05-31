@@ -73,14 +73,72 @@ function samplePath(pathData: string, count: number): Float32Array {
   return out;
 }
 
+/* ---------------------------------------------------------------------------
+ * Procedural 3D forms — for shapes that only read correctly with real volume
+ * (a sphere, a double helix). These override the flat path-sampled silhouettes.
+ * ------------------------------------------------------------------------- */
+
+/** A true 3D sphere shell (Fibonacci distribution) — the globe. */
+function globe3D(count: number): Float32Array {
+  const a = new Float32Array(count * 3);
+  const r = FIT * 0.46;
+  const golden = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < count; i++) {
+    const y = 1 - (i / (count - 1)) * 2; // -1..1
+    const rad = Math.sqrt(1 - y * y);
+    const theta = golden * i;
+    a[i * 3] = Math.cos(theta) * rad * r;
+    a[i * 3 + 1] = y * r;
+    a[i * 3 + 2] = Math.sin(theta) * rad * r;
+  }
+  return a;
+}
+
+/** A real 3D double helix: two strands spiralling around the Y axis + rungs. */
+function helix3D(count: number): Float32Array {
+  const a = new Float32Array(count * 3);
+  const turns = 3.2;
+  const radius = FIT * 0.22;
+  const height = FIT * 0.95;
+  const rungEvery = 9; // every Nth particle becomes part of a connecting rung
+  for (let i = 0; i < count; i++) {
+    const t = i / count; // 0..1 up the helix
+    const ang = t * Math.PI * 2 * turns;
+    const y = (t - 0.5) * height;
+    if (i % rungEvery === 0) {
+      // rung: interpolate straight across between the two strands
+      const k = ((i / rungEvery) % 1) || Math.random();
+      const x1 = Math.cos(ang) * radius;
+      const z1 = Math.sin(ang) * radius;
+      const x2 = Math.cos(ang + Math.PI) * radius;
+      const z2 = Math.sin(ang + Math.PI) * radius;
+      a[i * 3] = x1 + (x2 - x1) * k;
+      a[i * 3 + 1] = y;
+      a[i * 3 + 2] = z1 + (z2 - z1) * k;
+    } else {
+      // strand A or B (offset by PI)
+      const strand = i % 2 === 0 ? 0 : Math.PI;
+      a[i * 3] = Math.cos(ang + strand) * radius;
+      a[i * 3 + 1] = y;
+      a[i * 3 + 2] = Math.sin(ang + strand) * radius;
+    }
+  }
+  return a;
+}
+
+const PROCEDURAL: Record<string, (count: number) => Float32Array> = {
+  globe: globe3D,
+  helix: helix3D,
+};
+
 /** Build (and cache) a form's positions for a given particle count. */
 const cache = new Map<string, Float32Array>();
 export function getForm(name: string, count: number): Float32Array {
   const key = `${name}:${count}`;
   const hit = cache.get(key);
   if (hit) return hit;
-  const path = SHAPE_PATHS[name] ?? SHAPE_PATHS.globe!;
-  const data = samplePath(path, count);
+  const proc = PROCEDURAL[name];
+  const data = proc ? proc(count) : samplePath(SHAPE_PATHS[name] ?? SHAPE_PATHS.globe!, count);
   cache.set(key, data);
   return data;
 }
