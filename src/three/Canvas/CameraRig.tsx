@@ -6,11 +6,9 @@ import * as THREE from "three";
 import { useUIStore } from "@/store/useUIStore";
 
 /**
- * The heart of the "stunning parallax": the camera smoothly dollies forward
- * along Z and pans with scroll progress, while also easing toward the pointer.
- * Objects placed at different depths therefore separate dramatically as you
- * scroll — near shapes sweep past, far ones glide. All motion is damped (lerp)
- * for a cinematic, weighty feel.
+ * Gentle scroll-coupled camera. It orbits/dollies slightly with scroll progress
+ * and eases toward the pointer, keeping the morphing particle form centered and
+ * cinematic without ever throwing it off-screen.
  */
 export function CameraRig() {
   const { camera } = useThree();
@@ -19,17 +17,15 @@ export function CameraRig() {
   useFrame(() => {
     const { scrollProgress, pointer } = useUIStore.getState();
 
-    // Dolly through the scene + drift sideways/down as the page scrolls.
-    const targetZ = 14 - scrollProgress * 10; // 14 → 4
-    const targetX = pointer.x * 1.6 + Math.sin(scrollProgress * Math.PI) * 1.2;
-    const targetY = -pointer.y * 1.2 - scrollProgress * 2.5;
+    const targetZ = 13 - scrollProgress * 3; // 13 → 10
+    const targetX = pointer.x * 1.2 + Math.sin(scrollProgress * Math.PI * 2) * 1.4;
+    const targetY = -pointer.y * 0.9 + Math.cos(scrollProgress * Math.PI) * 0.8;
 
-    camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetX, 0.045);
-    camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetY, 0.045);
-    camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.045);
+    camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetX, 0.04);
+    camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetY, 0.04);
+    camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.04);
 
-    // Always look slightly ahead toward the scene center for stable framing.
-    target.current.set(targetX * 0.3, targetY * 0.3, -6);
+    target.current.set(0, 0, 0);
     camera.lookAt(target.current);
   });
 

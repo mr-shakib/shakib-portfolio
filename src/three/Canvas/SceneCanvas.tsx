@@ -3,9 +3,7 @@
 import { Suspense, useEffect, useState } from "react";
 import { Canvas } from "@react-three/fiber";
 import { AdaptiveDpr, AdaptiveEvents, PerformanceMonitor } from "@react-three/drei";
-import { NeuralNetwork } from "@/three/objects/NeuralNetwork";
-import { DepthParticles } from "@/three/objects/DepthParticles";
-import { FloatingGeometry } from "@/three/objects/FloatingGeometry";
+import { MorphingParticles } from "@/three/objects/MorphingParticles";
 import { CameraRig } from "@/three/Canvas/CameraRig";
 import { useCapability } from "@/three/hooks/useCapability";
 import { useUIStore } from "@/store/useUIStore";
@@ -20,10 +18,7 @@ function SceneContents({ tier }: { tier: "high" | "low" }) {
     return () => setCanvasReady(false);
   }, [setCanvasReady]);
 
-  const nodeCount = tier === "high" ? 70 : 36;
-  const particleCount = tier === "high" ? 220 : 90;
-  const particleLayers = tier === "high" ? 4 : 2;
-  const shapeCount = tier === "high" ? 9 : 5;
+  const particleCount = tier === "high" ? 4000 : 1500;
 
   return (
     <>
@@ -33,11 +28,7 @@ function SceneContents({ tier }: { tier: "high" | "low" }) {
       <pointLight position={[10, 10, 10]} intensity={0.4} color="#c6f135" />
       <CameraRig />
       <Suspense fallback={null}>
-        {/* Deep, scroll-parallaxing layers */}
-        <DepthParticles count={particleCount} layers={particleLayers} />
-        <FloatingGeometry count={shapeCount} pointer={pointer} />
-        {/* Foreground signature element */}
-        <NeuralNetwork nodeCount={nodeCount} pointer={pointer} />
+        <MorphingParticles count={particleCount} pointer={pointer} />
       </Suspense>
     </>
   );
@@ -54,7 +45,7 @@ export default function SceneCanvas() {
   return (
     <Canvas
       className="!fixed inset-0 -z-10"
-      camera={{ position: [0, 0, 14], fov: 55 }}
+      camera={{ position: [0, 0, 13], fov: 55 }}
       dpr={effectiveTier === "high" ? [1, 1.5] : 1}
       gl={{
         antialias: effectiveTier === "high",
@@ -63,7 +54,6 @@ export default function SceneCanvas() {
       }}
       style={{ pointerEvents: "none" }}
     >
-      {/* Drop to the low tier if the device can't sustain framerate. */}
       <PerformanceMonitor onDecline={() => setDegraded(true)} />
       <SceneContents tier={effectiveTier} />
     </Canvas>
