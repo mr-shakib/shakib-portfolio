@@ -23,11 +23,23 @@ export const SHAPE_PATHS: Record<string, string> = {
     "M14 84h72v6H14z " +
     "M20 58h12v24H20z M38 44h12v38H38z M56 32h12v50H56z M74 20h12v62H74z",
 
-  // DNA double helix — two sine strands + rungs
+  // DNA double helix — two strands of dots that cross, joined by rungs
   helix:
-    "M30 8c0 14 40 18 40 34S30 78 30 92h6c0-12 40-16 40-34S36 22 36 8z " +
-    "M70 8c0 14-40 18-40 34s40 20 40 34h-6c0-12-40-16-40-34S64 22 64 8z " +
-    "M34 24h32v5H34z M30 40h40v5H30z M30 56h40v5H30z M34 72h32v5H34z",
+    // strand A nodes (r=4)
+    "M46 10a4 4 0 108 0 4 4 0 00-8 0z M64 17a4 4 0 108 0 4 4 0 00-8 0z " +
+    "M46 23a4 4 0 108 0 4 4 0 00-8 0z M28 30a4 4 0 108 0 4 4 0 00-8 0z " +
+    "M46 37a4 4 0 108 0 4 4 0 00-8 0z M64 43a4 4 0 108 0 4 4 0 00-8 0z " +
+    "M46 50a4 4 0 108 0 4 4 0 00-8 0z M28 57a4 4 0 108 0 4 4 0 00-8 0z " +
+    "M46 63a4 4 0 108 0 4 4 0 00-8 0z M64 70a4 4 0 108 0 4 4 0 00-8 0z " +
+    "M46 77a4 4 0 108 0 4 4 0 00-8 0z M28 83a4 4 0 108 0 4 4 0 00-8 0z " +
+    "M46 90a4 4 0 108 0 4 4 0 00-8 0z " +
+    // strand B nodes (mirror)
+    "M28 17a4 4 0 108 0 4 4 0 00-8 0z M64 30a4 4 0 108 0 4 4 0 00-8 0z " +
+    "M28 43a4 4 0 108 0 4 4 0 00-8 0z M64 57a4 4 0 108 0 4 4 0 00-8 0z " +
+    "M28 70a4 4 0 108 0 4 4 0 00-8 0z M64 83a4 4 0 108 0 4 4 0 00-8 0z " +
+    // rungs joining the strands at the wide rows
+    "M32 15h36v4H32z M32 28h36v4H32z M32 41h36v4H32z " +
+    "M32 55h36v4H32z M32 68h36v4H32z M32 81h36v4H32z",
 
   // Leaf — teardrop blade with a midrib
   leaf:
@@ -46,10 +58,12 @@ export const SHAPE_PATHS: Record<string, string> = {
     "M22 32c14-8 42-8 56 0l-3 5c-12-7-38-7-50 0z " +
     "M22 68c14 8 42 8 56 0l-3-5c-12 7-38 7-50 0z",
 
-  // Trend — upward arrow line with arrowhead (achievements)
+  // Trend — bold upward arrow (achievements / growth)
   trend:
-    "M16 78L40 52l14 12 22-30 6 5-26 35-14-12-22 23z " +
-    "M64 30h20v6H70v14h-6z",
+    // thick diagonal shaft from lower-left to upper-right
+    "M14 80L72 22l7 7L21 87z " +
+    // solid arrowhead at the top-right tip
+    "M82 18L54 22l22 24z",
 
   // Envelope — rectangle with flap
   envelope:
