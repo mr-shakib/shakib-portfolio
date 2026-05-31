@@ -1,5 +1,18 @@
 import type { ResearchAreaDTO, ResearchEntryDTO } from "@/lib/validations/content";
 
+/** Formal research statement, shown as the page "abstract". */
+export const researchStatement =
+  "My research sits at the intersection of computer vision, machine learning and their application to high-stakes, data-scarce domains — principally agriculture and healthcare. I am interested in models that remain robust under real-world variability, that are interpretable enough to be trusted by domain experts, and that are released alongside open, reproducible datasets. I believe the bottleneck in applied AI is rarely the architecture; it is the quality, availability and honesty of the data and evaluation around it. My work therefore pairs model development with careful dataset construction and reproducible baselines.";
+
+/** Sidebar metadata block — academic profile facts. */
+export const researchMeta: { label: string; value: string }[] = [
+  { label: "Field", value: "Computer Vision · Machine Learning" },
+  { label: "Domains", value: "Agriculture · Healthcare" },
+  { label: "Status", value: "Seeking MSc & research roles" },
+  { label: "Publications", value: "1 dataset paper" },
+  { label: "Open to", value: "Collaboration & supervision" },
+];
+
 export const researchAreasContent: ResearchAreaDTO[] = [
   {
     id: "machine-learning",
