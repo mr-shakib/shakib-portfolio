@@ -1,0 +1,187 @@
+// Shakib Howlader — Portfolio data model
+// PostgreSQL via Prisma. See blueprint §6.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum ProjectCategory {
+  WEB
+  MOBILE
+  AI_ML
+  RESEARCH
+  SYSTEM
+  OTHER
+}
+
+enum PublicationType {
+  JOURNAL
+  CONFERENCE
+  DATASET
+  PREPRINT
+}
+
+enum ResearchEntryType {
+  INTEREST
+  CURRENT
+  PAST
+  FUTURE
+  DATASET
+  COLLABORATION
+}
+
+enum AchievementType {
+  PUBLICATION
+  AWARD
+  CONTEST
+  ACADEMIC
+}
+
+enum MessageStatus {
+  UNREAD
+  READ
+  ARCHIVED
+}
+
+enum Role {
+  ADMIN
+}
+
+model Project {
+  id          String          @id @default(cuid())
+  slug        String          @unique
+  title       String
+  summary     String
+  description String          @db.Text
+  category    ProjectCategory @default(WEB)
+  techStack   String[]
+  tags        String[]
+  githubUrl   String?
+  demoUrl     String?
+  coverImage  String?
+  screenshots String[]
+  features    String[]
+  challenges  String?         @db.Text
+  results     String?         @db.Text
+  featured    Boolean         @default(false)
+  order       Int             @default(0)
+  status      ContentStatus   @default(PUBLISHED)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([featured])
+  @@index([category])
+  @@index([status])
+  @@map("projects")
+}
+
+model Publication {
+  id             String          @id @default(cuid())
+  slug           String          @unique
+  title          String
+  authors        String[]
+  venue          String
+  type           PublicationType @default(JOURNAL)
+  doi            String?         @unique
+  url            String?
+  abstract       String          @db.Text
+  keywords       String[]
+  citationCount  Int?
+  bibtex         String?         @db.Text
+  datasetUrl     String?
+  impact         String?         @db.Text
+  featured       Boolean         @default(false)
+  status         ContentStatus   @default(PUBLISHED)
+  publishedDate  DateTime
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([featured])
+  @@index([publishedDate])
+  @@index([status])
+  @@map("publications")
+}
+
+model ResearchEntry {
+  id        String            @id @default(cuid())
+  type      ResearchEntryType
+  title     String
+  body      String            @db.Text
+  links     Json?
+  icon      String?
+  startDate DateTime?
+  endDate   DateTime?
+  order     Int               @default(0)
+  status    ContentStatus     @default(PUBLISHED)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  @@index([type])
+  @@map("research_entries")
+}
+
+model ResearchArea {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String   @db.Text
+  icon        String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("research_areas")
+}
+
+model Achievement {
+  id          String          @id @default(cuid())
+  title       String
+  description String          @db.Text
+  type        AchievementType
+  date        DateTime
+  link        String?
+  order       Int             @default(0)
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([date])
+  @@map("achievements")
+}
+
+model ContactMessage {
+  id        String        @id @default(cuid())
+  name      String
+  email     String
+  subject   String
+  message   String        @db.Text
+  ipHash    String?
+  status    MessageStatus @default(UNREAD)
+  createdAt DateTime      @default(now())
+
+  @@index([status])
+  @@index([createdAt])
+  @@map("contact_messages")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String?
+  role         Role     @default(ADMIN)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("users")
+}
