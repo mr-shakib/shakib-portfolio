@@ -58,10 +58,13 @@ export default async function HomePage() {
         <StatsSection />
       </div>
 
-      <ScrollHighlightText
-        eyebrow="Mission"
-        text="I build intelligent systems that turn messy, real-world data into reliable decisions — and I publish the datasets and methods so others can build on them too."
-      />
+      <div className="relative">
+        <SectionShape shape="target" />
+        <ScrollHighlightText
+          eyebrow="Mission"
+          text="I build intelligent systems that turn messy, real-world data into reliable decisions — and I publish the datasets and methods so others can build on them too."
+        />
+      </div>
 
       <div className="relative">
         <SectionShape shape="leaf" />

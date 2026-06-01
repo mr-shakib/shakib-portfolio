@@ -76,6 +76,12 @@ export const SHAPE_PATHS: Record<string, string> = {
   // Envelope — rectangle with flap
   envelope:
     "M14 26h72v48H14z M14 26l36 28 36-28v8L50 62 14 34z",
+
+  // Target / bullseye — concentric rings + center dot (mission)
+  target:
+    "M50 8a42 42 0 100 84 42 42 0 000-84zm0 8a34 34 0 110 68 34 34 0 010-68z " +
+    "M50 26a24 24 0 100 48 24 24 0 000-48zm0 8a16 16 0 110 32 16 16 0 010-32z " +
+    "M50 44a6 6 0 100 12 6 6 0 000-12z",
 };
 
 export const SHAPE_NAMES = Object.keys(SHAPE_PATHS);
