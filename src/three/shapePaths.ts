@@ -47,10 +47,12 @@ export const SHAPE_PATHS: Record<string, string> = {
     "M32 15h36v4H32z M32 28h36v4H32z M32 41h36v4H32z " +
     "M32 55h36v4H32z M32 68h36v4H32z M32 81h36v4H32z",
 
-  // Leaf — teardrop blade with a midrib
+  // Leaf — symmetric pointed blade (almond) with a stem
   leaf:
-    "M78 16C44 16 20 38 20 70c0 6 1 11 3 16 30-2 55-26 55-58 0-4 0-8 0-12z " +
-    "M30 80C44 60 60 44 76 30l4 4C64 50 48 66 36 86z",
+    // blade: two mirrored arcs meeting at top (20,16) and bottom (50,84)
+    "M50 16C66 34 70 60 50 84 30 60 34 34 50 16z " +
+    // stem
+    "M48 82h4v12h-4z",
 
   // Gear — cog with teeth and a center hole (projects/engineering)
   lattice:
