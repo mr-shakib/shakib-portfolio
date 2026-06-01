@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useUIStore } from "@/store/useUIStore";
-import { getForm, center } from "@/three/forms";
+import { getForm, center, NETWORK_NODES, NETWORK_EDGES } from "@/three/forms";
 
 interface MorphingParticlesProps {
   count?: number;
@@ -25,11 +25,41 @@ export function MorphingParticles({
   pointer = { x: 0, y: 0 },
 }: MorphingParticlesProps) {
   const pointsRef = useRef<THREE.Points>(null);
+  const linesRef = useRef<THREE.LineSegments>(null);
   const group = useRef<THREE.Group>(null);
 
   // Live position buffer (eased every frame) + scratch target buffer.
   const current = useMemo(() => new Float32Array(count * 3), [count]);
   const target = useMemo(() => new Float32Array(count * 3), [count]);
+
+  // Static line geometry for the network's connecting edges (recentred to match
+  // the centered network form). Only shown while the network shape is active.
+  const linePositions = useMemo(() => {
+    // centroid of nodes (network form is centered the same way)
+    let cx = 0,
+      cy = 0,
+      cz = 0;
+    for (const n of NETWORK_NODES) {
+      cx += n[0];
+      cy += n[1];
+      cz += n[2];
+    }
+    cx /= NETWORK_NODES.length;
+    cy /= NETWORK_NODES.length;
+    cz /= NETWORK_NODES.length;
+    const arr = new Float32Array(NETWORK_EDGES.length * 2 * 3);
+    NETWORK_EDGES.forEach((e, i) => {
+      const a = NETWORK_NODES[e[0]]!;
+      const b = NETWORK_NODES[e[1]]!;
+      arr[i * 6] = a[0] - cx;
+      arr[i * 6 + 1] = a[1] - cy;
+      arr[i * 6 + 2] = a[2] - cz;
+      arr[i * 6 + 3] = b[0] - cx;
+      arr[i * 6 + 4] = b[1] - cy;
+      arr[i * 6 + 5] = b[2] - cz;
+    });
+    return arr;
+  }, []);
 
   // Initialize from the starting shape so there's no first-frame snap.
   useEffect(() => {
@@ -87,17 +117,25 @@ export function MorphingParticles({
         group.current.rotation.x = THREE.MathUtils.lerp(group.current.rotation.x, swayX, 0.05);
       }
 
-      // The globe "beats" — a continuous heartbeat-style pulse in scale.
+      // The network "breathes" — a slow, calm pulse in scale.
       if (shape === "globe") {
-        // double-thump heartbeat: a sharp beat then a smaller echo per cycle
-        const cycle = (t * 1.1) % 1; // ~1.1 beats/sec
+        // gentle double-thump every ~2.2s (≈27 bpm feel), subtle amplitude
+        const cycle = (t * 0.45) % 1;
         const thump =
-          Math.exp(-Math.pow((cycle - 0.0) * 6, 2)) +
-          0.6 * Math.exp(-Math.pow((cycle - 0.22) * 6, 2));
-        const beat = 1 + thump * 0.08;
-        group.current.scale.setScalar(THREE.MathUtils.lerp(group.current.scale.x, beat, 0.3));
+          Math.exp(-Math.pow((cycle - 0.0) * 7, 2)) +
+          0.6 * Math.exp(-Math.pow((cycle - 0.18) * 7, 2));
+        const beat = 1 + thump * 0.045;
+        group.current.scale.setScalar(THREE.MathUtils.lerp(group.current.scale.x, beat, 0.12));
       } else {
         group.current.scale.setScalar(THREE.MathUtils.lerp(group.current.scale.x, 1, 0.1));
+      }
+
+      // Fade the network's connecting lines in/out with the active shape.
+      if (linesRef.current) {
+        const mat = linesRef.current.material as THREE.LineBasicMaterial;
+        const targetOpacity = shape === "globe" ? 0.22 : 0;
+        mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOpacity, 0.08);
+        linesRef.current.visible = mat.opacity > 0.01;
       }
     }
   });
@@ -118,6 +156,20 @@ export function MorphingParticles({
           blending={THREE.AdditiveBlending}
         />
       </points>
+
+      {/* Network connecting lines — fade in only while the network is active. */}
+      <lineSegments ref={linesRef} visible={false}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[linePositions, 3]} />
+        </bufferGeometry>
+        <lineBasicMaterial
+          color={color}
+          transparent
+          opacity={0}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </lineSegments>
     </group>
   );
 }

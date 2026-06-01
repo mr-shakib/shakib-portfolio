@@ -78,18 +78,79 @@ function samplePath(pathData: string, count: number): Float32Array {
  * (a sphere, a double helix). These override the flat path-sampled silhouettes.
  * ------------------------------------------------------------------------- */
 
-/** A true 3D sphere shell (Fibonacci distribution) — the globe. */
-function globe3D(count: number): Float32Array {
-  const a = new Float32Array(count * 3);
-  const r = FIT * 0.46;
+/* ---- Network: fixed node anchors + edges, shared by points and lines ---- */
+
+const NETWORK_RADIUS = FIT * 0.5;
+const NETWORK_NODE_COUNT = 34;
+
+/** Deterministic 3D node anchors on a sphere-ish volume (Fibonacci + jitter). */
+function buildNetworkNodes(): Array<[number, number, number]> {
+  const nodes: Array<[number, number, number]> = [];
   const golden = Math.PI * (3 - Math.sqrt(5));
-  for (let i = 0; i < count; i++) {
-    const y = 1 - (i / (count - 1)) * 2; // -1..1
+  // seeded-ish pseudo-random for stable jitter
+  let seed = 1337;
+  const rand = () => {
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    return seed / 0x7fffffff;
+  };
+  for (let i = 0; i < NETWORK_NODE_COUNT; i++) {
+    const y = 1 - (i / (NETWORK_NODE_COUNT - 1)) * 2;
     const rad = Math.sqrt(1 - y * y);
     const theta = golden * i;
-    a[i * 3] = Math.cos(theta) * rad * r;
-    a[i * 3 + 1] = y * r;
-    a[i * 3 + 2] = Math.sin(theta) * rad * r;
+    const depth = 0.55 + rand() * 0.45; // vary radius so it's a volume, not a shell
+    nodes.push([
+      Math.cos(theta) * rad * NETWORK_RADIUS * depth,
+      y * NETWORK_RADIUS * depth,
+      Math.sin(theta) * rad * NETWORK_RADIUS * depth,
+    ]);
+  }
+  return nodes;
+}
+
+export const NETWORK_NODES = buildNetworkNodes();
+
+/** Edges between nearby nodes — the connecting lines of the network. */
+export const NETWORK_EDGES: Array<[number, number]> = (() => {
+  const edges: Array<[number, number]> = [];
+  const maxDist = NETWORK_RADIUS * 0.85;
+  for (let i = 0; i < NETWORK_NODES.length; i++) {
+    for (let j = i + 1; j < NETWORK_NODES.length; j++) {
+      const a = NETWORK_NODES[i]!;
+      const b = NETWORK_NODES[j]!;
+      const dx = a[0] - b[0];
+      const dy = a[1] - b[1];
+      const dz = a[2] - b[2];
+      if (Math.sqrt(dx * dx + dy * dy + dz * dz) < maxDist) edges.push([i, j]);
+    }
+  }
+  return edges;
+})();
+
+/**
+ * Network form: most particles cluster tightly on the node anchors (so the
+ * nodes read as bright dots), the rest scatter along the connecting edges.
+ */
+function network3D(count: number): Float32Array {
+  const a = new Float32Array(count * 3);
+  const nodes = NETWORK_NODES;
+  const edges = NETWORK_EDGES;
+  for (let i = 0; i < count; i++) {
+    if (i % 3 === 0 && edges.length > 0) {
+      // a point somewhere along a random edge
+      const e = edges[(Math.random() * edges.length) | 0]!;
+      const n1 = nodes[e[0]]!;
+      const n2 = nodes[e[1]]!;
+      const k = Math.random();
+      a[i * 3] = n1[0] + (n2[0] - n1[0]) * k + (Math.random() - 0.5) * 0.15;
+      a[i * 3 + 1] = n1[1] + (n2[1] - n1[1]) * k + (Math.random() - 0.5) * 0.15;
+      a[i * 3 + 2] = n1[2] + (n2[2] - n1[2]) * k + (Math.random() - 0.5) * 0.15;
+    } else {
+      // tight cluster on a node
+      const nNode = nodes[(Math.random() * nodes.length) | 0]!;
+      a[i * 3] = nNode[0] + (Math.random() - 0.5) * 0.6;
+      a[i * 3 + 1] = nNode[1] + (Math.random() - 0.5) * 0.6;
+      a[i * 3 + 2] = nNode[2] + (Math.random() - 0.5) * 0.6;
+    }
   }
   return a;
 }
@@ -127,7 +188,7 @@ function helix3D(count: number): Float32Array {
 }
 
 const PROCEDURAL: Record<string, (count: number) => Float32Array> = {
-  globe: globe3D,
+  globe: network3D,
   helix: helix3D,
 };
 

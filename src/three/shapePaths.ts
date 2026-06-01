@@ -15,8 +15,14 @@ export const SHAPE_PATHS: Record<string, string> = {
 
   // Person — head + shoulders silhouette
   figure:
-    "M50 12a14 14 0 100 28 14 14 0 000-28z " +
-    "M50 44c-16 0-26 11-28 27-1 6 3 11 9 11h38c6 0 10-5 9-11-2-16-12-27-28-27z",
+    // head
+    "M50 6a9 9 0 100 18 9 9 0 000-18z " +
+    // torso
+    "M42 26h16l-2 30H44z " +
+    // arms (down the sides)
+    "M42 28l-12 24 5 2 11-22z M58 28l12 24-5 2-11-22z " +
+    // legs
+    "M44 54h5l-1 38h-6z M51 54h5l2 38h-6z",
 
   // Bar chart — four bars of increasing height on a baseline
   bars:
