@@ -5,12 +5,24 @@ import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { navLinks, socialLinks } from "@/config/site";
 import { useUIStore } from "@/store/useUIStore";
+import { scrollToId } from "@/lib/animations/lenis";
 import { MotionToggle } from "./MotionToggle";
 
 export function MobileMenu() {
   const menuOpen = useUIStore((s) => s.menuOpen);
   const setMenuOpen = useUIStore((s) => s.setMenuOpen);
   const pathname = usePathname();
+  const isHome = pathname === "/";
+
+  const handleNav = (e: React.MouseEvent, link: (typeof navLinks)[number]) => {
+    setMenuOpen(false);
+    if (isHome && link.section) {
+      e.preventDefault();
+      // Wait for the overlay to close before scrolling.
+      setTimeout(() => scrollToId(link.section!), 320);
+      history.replaceState(null, "", link.section === "hero" ? "/" : `/#${link.section}`);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -26,14 +38,14 @@ export function MobileMenu() {
           <nav className="container-content flex h-full flex-col justify-center gap-2 pt-16">
             {navLinks.map((link, i) => (
               <motion.div
-                key={link.href}
+                key={link.href + link.label}
                 initial={{ opacity: 0, x: -24 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.05 * i + 0.1, ease: [0.16, 1, 0.3, 1] }}
               >
                 <Link
                   href={link.href}
-                  onClick={() => setMenuOpen(false)}
+                  onClick={(e) => handleNav(e, link)}
                   className="block py-2 font-display text-4xl text-gradient"
                   aria-current={pathname === link.href ? "page" : undefined}
                 >

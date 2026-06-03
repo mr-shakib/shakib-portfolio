@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 import { registerGsap, gsap, ScrollTrigger } from "@/lib/animations/gsap";
+import { setLenis } from "@/lib/animations/lenis";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 /**
@@ -35,6 +36,7 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
       touchMultiplier: 1.5,
     });
     lenisRef.current = lenis;
+    setLenis(lenis);
 
     lenis.on("scroll", ScrollTrigger.update);
 
@@ -51,6 +53,7 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
       gsap.ticker.remove(tick);
       lenis.destroy();
       lenisRef.current = null;
+      setLenis(null);
       window.removeEventListener("load", refresh);
       window.clearTimeout(refreshTimer);
     };

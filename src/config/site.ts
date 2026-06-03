@@ -42,13 +42,18 @@ export const siteConfig = {
   ],
 } as const;
 
+/**
+ * Primary nav. `section` is the id of the matching block on the home page — used
+ * for smooth-scroll + scroll-spy while on "/". `href` is the dedicated page used
+ * from any other route (and as the canonical destination).
+ */
 export const navLinks = [
-  { label: "Home", href: "/" },
-  { label: "Research", href: "/research" },
-  { label: "Publications", href: "/publications" },
-  { label: "Projects", href: "/projects" },
-  { label: "Resume", href: "/resume" },
-  { label: "Contact", href: "/contact" },
+  { label: "Home", href: "/", section: "hero" },
+  { label: "Research", href: "/research", section: "research-areas" },
+  { label: "Publications", href: "/publications", section: "featured-publication" },
+  { label: "Projects", href: "/projects", section: "projects" },
+  { label: "Resume", href: "/resume", section: null },
+  { label: "Contact", href: "/contact", section: "contact" },
 ] as const;
 
 /** Anchor links for the one-page home experience. */
