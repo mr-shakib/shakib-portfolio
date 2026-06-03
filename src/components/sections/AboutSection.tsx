@@ -48,13 +48,13 @@ export function AboutSection() {
           />
           <p className="mt-6 max-w-md leading-relaxed text-muted">{aboutBio}</p>
           <ParallaxImage
-            src="https://picsum.photos/seed/shakib-portrait/800/1000"
-            alt="Shakib Howlader"
-            strength={0.3}
-            overlay
-            className="mt-10 hidden aspect-[4/5] rounded-2xl border border-border lg:block"
-            imageClassName="grayscale"
+            src="/images/portrait.jpg"
+            alt="Shakib Howlader at the Department of Computer Science & Engineering"
+            strength={0.22}
+            className="mt-10 aspect-[3/4] rounded-2xl border border-border"
+            imageClassName="grayscale transition-all duration-700 hover:grayscale-0"
             sizes="(min-width: 1024px) 40vw, 100vw"
+            priority
           />
         </div>
 
