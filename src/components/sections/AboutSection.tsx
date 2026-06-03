@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { Section } from "@/components/shared/Section";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { ParallaxImage } from "@/components/shared/ParallaxImage";
-import { aboutTimeline } from "@/content/stats";
+import { aboutTimeline, aboutBio } from "@/content/stats";
 import { gsap, ScrollTrigger, registerGsap } from "@/lib/animations/gsap";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
@@ -46,9 +46,10 @@ export function AboutSection() {
             title="From curiosity to contribution."
             description="A path that runs through engineering, research and building tools people actually use — heading toward graduate research."
           />
+          <p className="mt-6 max-w-md leading-relaxed text-muted">{aboutBio}</p>
           <ParallaxImage
             src="https://picsum.photos/seed/shakib-portrait/800/1000"
-            alt="Portrait"
+            alt="Shakib Howlader"
             strength={0.3}
             overlay
             className="mt-10 hidden aspect-[4/5] rounded-2xl border border-border lg:block"
@@ -59,14 +60,17 @@ export function AboutSection() {
 
         <ol className="flex flex-col gap-12 border-l border-border pl-8">
           {aboutTimeline.map((stage) => (
-            <li key={stage.stage} className="about-stage relative">
+            <li key={stage.role} className="about-stage relative">
               <span
                 className="absolute -left-[2.6rem] top-1 flex h-5 w-5 items-center justify-center rounded-full border border-accent bg-background"
                 aria-hidden
               >
                 <span className="h-1.5 w-1.5 rounded-full bg-accent" />
               </span>
-              <p className="text-sm uppercase tracking-widest text-accent">{stage.stage}</p>
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <p className="text-sm uppercase tracking-widest text-accent">{stage.role}</p>
+                <span className="font-mono text-xs text-muted/70">{stage.stage}</span>
+              </div>
               <h3 className="mt-2 font-display text-2xl text-foreground">{stage.title}</h3>
               <p className="mt-2 max-w-md leading-relaxed text-muted">{stage.body}</p>
             </li>
