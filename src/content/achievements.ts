@@ -3,11 +3,11 @@ import type { AchievementDTO } from "@/lib/validations/content";
 export const achievementsContent: AchievementDTO[] = [
   {
     id: "ach-publication-eggplant",
-    title: "Published Dataset Paper",
+    title: "First-Author Publication in Data in Brief (Elsevier)",
     description:
-      "Authored and published the Eggplant Leaf Disease Dataset for machine-learning-based image classification, contributing an open benchmark to agricultural AI.",
+      "Lead author of a peer-reviewed dataset paper publishing an open 4,089-image, six-class eggplant-leaf-disease benchmark for computer-vision research — a contribution to agricultural AI and precision farming.",
     type: "PUBLICATION",
-    date: new Date("2024-01-01"),
+    date: new Date("2025-04-01"),
     link: "/publications/eggplant-leaf-disease-dataset",
     order: 1,
   },

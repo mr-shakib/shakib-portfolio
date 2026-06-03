@@ -65,10 +65,10 @@ export const homeSections = [
 ] as const;
 
 export const socialLinks = [
-  { label: "GitHub", href: "https://github.com/", handle: "@shakib" },
-  { label: "LinkedIn", href: "https://www.linkedin.com/", handle: "in/shakib" },
+  { label: "GitHub", href: "https://github.com/", handle: "@mr-shakib" },
+  { label: "LinkedIn", href: "https://www.linkedin.com/", handle: "in/shakib-howlader" },
   { label: "Google Scholar", href: "https://scholar.google.com/", handle: "Shakib Howlader" },
-  { label: "ORCID", href: "https://orcid.org/", handle: "0000-0000-0000-0000" },
+  { label: "ORCID", href: "https://orcid.org/", handle: "0009-0009-5318-2999" },
   { label: "Email", href: "mailto:contactshakibhere@gmail.com", handle: siteConfig.email },
 ] as const;
 
