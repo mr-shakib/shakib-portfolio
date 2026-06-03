@@ -43,15 +43,21 @@ export const siteConfig = {
 } as const;
 
 /**
- * Primary nav. `section` is the id of the matching block on the home page — used
- * for smooth-scroll + scroll-spy while on "/". `href` is the dedicated page used
- * from any other route (and as the canonical destination).
+ * Primary nav, serialized in the same order the home page actually scrolls:
+ * Home → About → Research → Publications → Projects → Skills → Contact (+ Resume).
+ *
+ * `section` is the id of the matching block on the home page — used for
+ * smooth-scroll + scroll-spy while on "/". `href` is the dedicated page used
+ * from any other route (and as the canonical destination). When a link has no
+ * dedicated page it just scrolls; when it has no home section it just navigates.
  */
 export const navLinks = [
   { label: "Home", href: "/", section: "hero" },
+  { label: "About", href: "/#about", section: "about" },
   { label: "Research", href: "/research", section: "research-areas" },
   { label: "Publications", href: "/publications", section: "featured-publication" },
   { label: "Projects", href: "/projects", section: "projects" },
+  { label: "Skills", href: "/#skills", section: "skills" },
   { label: "Resume", href: "/resume", section: null },
   { label: "Contact", href: "/contact", section: "contact" },
 ] as const;

@@ -59,8 +59,22 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
     };
   }, [reducedMotion]);
 
-  // Reset scroll position on route change.
+  // On route change: honor a #hash target (e.g. /#about from another page),
+  // otherwise reset to the top. Lenis owns the scroll, so we drive it manually.
   useEffect(() => {
+    const hash = window.location.hash?.slice(1);
+    const target = hash ? document.getElementById(hash) : null;
+
+    if (target) {
+      // Defer so the new page has laid out before we measure the target.
+      const id = window.setTimeout(() => {
+        if (lenisRef.current) lenisRef.current.scrollTo(target, { offset: -80 });
+        else target.scrollIntoView({ behavior: "smooth" });
+        ScrollTrigger.refresh();
+      }, 160);
+      return () => window.clearTimeout(id);
+    }
+
     if (reducedMotion) {
       window.scrollTo(0, 0);
     } else if (lenisRef.current) {

@@ -67,13 +67,13 @@ export default async function HomePage() {
       </div>
 
       <div className="relative">
-        <SectionShape shape="leaf" />
-        <FeaturedPublicationSection publication={publication} />
+        <SectionShape shape="helix" />
+        <ResearchAreasSection areas={areas} />
       </div>
 
       <div className="relative">
-        <SectionShape shape="helix" />
-        <ResearchAreasSection areas={areas} />
+        <SectionShape shape="leaf" />
+        <FeaturedPublicationSection publication={publication} />
       </div>
 
       <div className="relative">
