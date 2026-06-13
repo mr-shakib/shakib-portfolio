@@ -73,7 +73,7 @@ export function HallOfFame() {
     <section
       ref={sectionRef}
       id="achievements"
-      className="overflow-hidden border-b border-border bg-surface/40"
+      className="overflow-hidden border-b border-border bg-surface/20"
     >
       <div className="flex min-h-svh flex-col justify-center py-16 lg:py-0">
         <div className="container-content">

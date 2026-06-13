@@ -40,7 +40,7 @@ export default async function HomePage() {
       <NumbersBand />
 
       {/* Mission statement — words brighten as you scroll through them */}
-      <section className="border-b border-border bg-background py-section">
+      <section className="border-b border-border bg-transparent py-section">
         <div className="container-content">
           <RevealOnScroll>
             <p className="font-grotesk text-[11px] uppercase tracking-[0.35em] text-accent">

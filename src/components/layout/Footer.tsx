@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
@@ -11,20 +10,10 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { cn } from "@/lib/utils/cn";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
-const OLIVE = "#272921";
-const CREAM = "#f1efe9";
-const SAGE = "#b4ba7c";
-
-const TECH_STRIP = [
-  "PyTorch",
-  "TensorFlow",
-  "OpenCV",
-  "Next.js",
-  "React",
-  "FastAPI",
-  "PostgreSQL",
-  "Docker",
-];
+// Footer shares the site's dark canvas + volt accent so it reads as the page's
+// natural conclusion rather than a separate panel.
+const FOREGROUND = "#f5f5f3";
+const ACCENT = "#c6f135";
 
 /** Live clock in Dhaka time — the "where I am right now" detail. */
 function LocalTime() {
@@ -67,11 +56,9 @@ function StatementWord({
         transition={{ duration: 1, delay, ease: EASE }}
         className={cn(
           "inline-block",
-          serif
-            ? "px-1 font-serif italic"
-            : "font-display uppercase tracking-[0.01em]",
+          serif ? "px-1 font-serif italic" : "font-display uppercase tracking-[0.01em]",
         )}
-        style={{ color: serif ? SAGE : CREAM }}
+        style={{ color: serif ? ACCENT : FOREGROUND }}
       >
         {children}
       </motion.span>
@@ -80,10 +67,9 @@ function StatementWord({
 }
 
 /**
- * The grand sign-off: a volt glow over a notched olive panel with
- * topographic texture, an oversized mixed-typography statement crossed by the
- * handwritten signature, symmetric link columns around the portrait rising
- * from the bottom edge, a tool strip and the utility bar.
+ * Compact sign-off: a volt glow over a notched olive panel — a mixed-typography
+ * statement crossed by the signature, then a tidy brand / pages / connect row
+ * and the utility bar. No oversized hero artwork, so it stays the right height.
  */
 export function Footer() {
   const year = new Date().getFullYear();
@@ -96,52 +82,52 @@ export function Footer() {
 
   return (
     <footer className="relative">
-      {/* Volt glow peeking over the notched edge */}
+      {/* Volt glow peeking over the notched edge (contained to the notch band
+          so it reads as a top accent, not a band bleeding into the footer) */}
       <div
         aria-hidden
-        className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#eaffa3] via-accent to-accent"
+        className="absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-[#eaffa3] to-accent"
       />
 
-      {/* Notched top edge — flat shoulders, raised center tab */}
+      {/* Notched top edge — flat shoulders, raised center tab. Filled with the
+          site's dark so the volt glow only shows through the cutout. */}
       <svg
         viewBox="0 0 1440 56"
         preserveAspectRatio="none"
-        className="relative block h-14 w-full"
+        className="relative block h-12 w-full"
         aria-hidden
       >
         <path
           d="M0 56 L0 26 L572 26 C604 26 610 4 646 4 L794 4 C830 4 836 26 868 26 L1440 26 L1440 56 Z"
-          fill={OLIVE}
+          fill="#0a0a0a"
         />
       </svg>
 
-      <div className="bg-topo-dark relative -mt-px overflow-hidden" style={{ backgroundColor: OLIVE }}>
+      <div className="relative -mt-px overflow-hidden">
         {/* ── Statement with signature scrawl ─────────────────────────── */}
-        <div className="container-content relative pt-10 text-center md:pt-16">
+        <div className="container-content relative pb-10 pt-10 text-center md:pb-12 md:pt-14">
           <motion.span
             initial={reduced ? false : { opacity: 0, clipPath: "inset(0 100% 0 0)" }}
             whileInView={reduced ? undefined : { opacity: 1, clipPath: "inset(0 0% 0 0)" }}
             viewport={{ once: true, margin: "-10%" }}
-            transition={{ duration: 1.4, delay: 0.6, ease: EASE }}
+            transition={{ duration: 1.4, delay: 0.5, ease: EASE }}
             aria-hidden
-            className="pointer-events-none absolute left-1/2 top-0 z-10 -translate-x-[20%] -rotate-12 font-signature text-6xl text-accent md:text-8xl"
+            className="pointer-events-none absolute right-[14%] top-0 z-10 -rotate-12 font-signature text-5xl text-accent md:text-6xl"
           >
             Shakib
           </motion.span>
 
           <h2
             aria-label="Always chasing the signal."
-            className="relative text-[clamp(2.75rem,8.5vw,7.5rem)] leading-[0.98]"
+            className="relative text-[clamp(2.25rem,6.5vw,5rem)] leading-[0.98]"
           >
-            <span className="block" aria-hidden>
+            <span aria-hidden>
               <StatementWord delay={0.05} reduced={reduced}>
                 Always
               </StatementWord>{" "}
               <StatementWord serif delay={0.15} reduced={reduced}>
                 chasing
-              </StatementWord>
-            </span>
-            <span className="block" aria-hidden>
+              </StatementWord>{" "}
               <StatementWord delay={0.25} reduced={reduced}>
                 the
               </StatementWord>{" "}
@@ -155,99 +141,83 @@ export function Footer() {
           </h2>
         </div>
 
-        {/* ── Columns flanking the rising portrait ────────────────────── */}
-        <div className="relative mt-14 md:mt-20">
-          {/* Portrait rising from the bottom, like the helmet on the shelf */}
-          <motion.div
-            initial={reduced ? false : { opacity: 0, y: 110 }}
-            whileInView={reduced ? undefined : { opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: "-5%" }}
-            transition={{ duration: 1.4, ease: EASE }}
-            className="pointer-events-none absolute bottom-0 left-1/2 z-0 h-[24rem] w-[min(78vw,400px)] -translate-x-1/2 md:h-[30rem]"
-            aria-hidden
-          >
-            <Image
-              src="/images/portrait-cutout.png"
-              alt=""
-              fill
-              sizes="(max-width: 768px) 78vw, 400px"
-              className="object-contain object-bottom [filter:saturate(0.5)_brightness(0.86)_contrast(1.05)]"
-            />
-          </motion.div>
-
-          <div className="container-content relative z-10 flex justify-between gap-8 pb-[18rem] pt-4 md:pb-[20rem]">
-            {/* Pages */}
-            <nav aria-label="Footer" className="flex flex-col items-start gap-2 md:items-center md:text-center md:[flex-basis:33%]">
-              <h3 className="mb-3 font-grotesk text-[10px] uppercase tracking-[0.35em] text-[#f1efe9]/50">
-                Pages
-              </h3>
-              {navLinks
-                .filter((l) => l.label !== "Resume")
-                .map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="group font-display text-2xl uppercase leading-tight text-[#f1efe9] md:text-3xl"
-                  >
-                    <HoverRoll>{link.label}</HoverRoll>
-                  </Link>
-                ))}
-              <Link
-                href="/resume"
-                className="group mt-4 font-display text-2xl uppercase leading-tight text-accent md:text-3xl"
+        {/* ── Brand / Pages / Connect ─────────────────────────────────── */}
+        <div className="container-content grid gap-10 border-t border-white/10 py-12 md:grid-cols-[1.4fr_1fr_1fr]">
+          {/* Brand */}
+          <div className="flex flex-col items-start gap-4">
+            <Link
+              href="/"
+              onClick={(e) => {
+                e.preventDefault();
+                scrollTop();
+              }}
+              className="font-display text-3xl uppercase leading-none text-foreground transition-colors hover:text-accent"
+            >
+              SH<span className="text-accent">—</span>
+            </Link>
+            <p className="max-w-xs text-sm leading-relaxed text-foreground/55">
+              Machine-learning research and full-stack engineering. Open datasets, shipped
+              software, and everything in between.
+            </p>
+            <a
+              href={`mailto:${siteConfig.email}`}
+              className="btn-sweep group mt-1 inline-flex items-center gap-3 border border-white/25 px-5 py-3 font-grotesk text-[11px] uppercase tracking-[0.25em] text-foreground transition-colors duration-300 hover:border-accent hover:text-[#16170f]"
+            >
+              {siteConfig.email}
+              <span
+                aria-hidden
+                className="transition-transform duration-300 group-hover:translate-x-1"
               >
-                <HoverRoll incomingClassName="text-[#f1efe9]">Resume</HoverRoll>
-              </Link>
-            </nav>
-
-            {/* center space is held by the portrait */}
-            <div className="hidden md:block md:[flex-basis:33%]" />
-
-            {/* Follow on */}
-            <div className="flex flex-col items-end gap-2 md:items-center md:text-center md:[flex-basis:33%]">
-              <h3 className="mb-3 font-grotesk text-[10px] uppercase tracking-[0.35em] text-[#f1efe9]/50">
-                Follow on
-              </h3>
-              {socialLinks
-                .filter((s) => s.label !== "Email")
-                .map((s) => (
-                  <a
-                    key={s.label}
-                    href={s.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group font-display text-2xl uppercase leading-tight text-[#f1efe9] md:text-3xl"
-                  >
-                    <HoverRoll>{s.label}</HoverRoll>
-                  </a>
-                ))}
-              <a
-                href={`mailto:${siteConfig.email}`}
-                className="group mt-4 font-display text-2xl uppercase leading-tight text-accent md:text-3xl"
-              >
-                <HoverRoll incomingClassName="text-[#f1efe9]">Email</HoverRoll>
-              </a>
-            </div>
+                →
+              </span>
+            </a>
           </div>
-        </div>
 
-        {/* ── Tool strip (the partner wall) ───────────────────────────── */}
-        <div className="relative z-10 border-t border-white/10">
-          <ul className="container-content flex flex-wrap items-center justify-between gap-x-8 gap-y-3 py-7">
-            {TECH_STRIP.map((tech) => (
-              <li
-                key={tech}
-                className="font-display text-lg uppercase text-[#f1efe9]/40 transition-all duration-300 hover:-translate-y-0.5 hover:text-accent md:text-xl"
+          {/* Pages */}
+          <nav aria-label="Footer" className="flex flex-col items-start gap-1.5">
+            <h3 className="mb-2 font-grotesk text-[10px] uppercase tracking-[0.35em] text-foreground/50">
+              Pages
+            </h3>
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  "group font-display text-xl uppercase leading-tight",
+                  link.label === "Resume" ? "text-accent" : "text-foreground",
+                )}
               >
-                {tech}
-              </li>
+                <HoverRoll incomingClassName={link.label === "Resume" ? "text-foreground" : "text-accent"}>
+                  {link.label}
+                </HoverRoll>
+              </Link>
             ))}
-          </ul>
+          </nav>
+
+          {/* Connect */}
+          <div className="flex flex-col items-start gap-1.5">
+            <h3 className="mb-2 font-grotesk text-[10px] uppercase tracking-[0.35em] text-foreground/50">
+              Connect
+            </h3>
+            {socialLinks
+              .filter((s) => s.label !== "Email")
+              .map((s) => (
+                <a
+                  key={s.label}
+                  href={s.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group font-display text-xl uppercase leading-tight text-foreground"
+                >
+                  <HoverRoll>{s.label}</HoverRoll>
+                </a>
+              ))}
+          </div>
         </div>
 
         {/* ── Utility bar ─────────────────────────────────────────────── */}
         <div className="relative z-10 border-t border-white/10">
-          <div className="container-content flex flex-col items-center justify-between gap-4 py-6 font-grotesk text-[10px] uppercase tracking-[0.2em] text-[#f1efe9]/50 sm:flex-row">
+          <div className="container-content flex flex-col items-center justify-between gap-4 py-5 font-grotesk text-[10px] uppercase tracking-[0.2em] text-foreground/50 sm:flex-row">
             <p>
               © {year} {siteConfig.name} — All rights reserved
             </p>
@@ -261,7 +231,7 @@ export function Footer() {
             <button
               type="button"
               onClick={scrollTop}
-              className="group flex items-center gap-2 uppercase tracking-[0.2em] transition-colors hover:text-[#f1efe9]"
+              className="group flex items-center gap-2 uppercase tracking-[0.2em] transition-colors hover:text-foreground"
             >
               Back to top
               <span className="relative inline-flex h-6 w-6 items-center justify-center overflow-hidden rounded-full border border-white/20 transition-colors duration-300 group-hover:border-accent">

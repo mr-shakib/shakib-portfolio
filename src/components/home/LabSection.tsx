@@ -14,7 +14,7 @@ export function LabSection({ areas }: { areas: ResearchAreaDTO[] }) {
   return (
     <section
       id="research-areas"
-      className="overflow-hidden border-b border-border bg-background py-section"
+      className="overflow-hidden border-b border-border bg-transparent py-section"
     >
       <div className="container-content">
         <RevealOnScroll>

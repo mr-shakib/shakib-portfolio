@@ -15,7 +15,7 @@ export function SignatureNote() {
   const reduced = useReducedMotion();
 
   return (
-    <section id="about" className="relative border-b border-border bg-background py-section">
+    <section id="about" className="relative border-b border-border bg-transparent py-section">
       <div className="container-content grid items-center gap-12 md:grid-cols-[1fr_auto]">
         <div className="max-w-3xl">
           <RevealOnScroll>

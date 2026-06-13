@@ -8,7 +8,7 @@ import { statsContent } from "@/content/stats";
  */
 export function NumbersBand() {
   return (
-    <section id="stats" className="border-b border-border bg-surface/40">
+    <section id="stats" className="border-b border-border bg-surface/20">
       <div className="container-content py-16 md:py-20">
         <RevealOnScroll>
           <p className="font-grotesk text-[11px] uppercase tracking-[0.35em] text-muted">

@@ -13,7 +13,7 @@ export function WildSection({ projects }: { projects: ProjectDTO[] }) {
   return (
     <section
       id="projects"
-      className="overflow-hidden border-b border-border bg-background py-section"
+      className="overflow-hidden border-b border-border bg-transparent py-section"
     >
       <div className="container-content">
         <RevealOnScroll>

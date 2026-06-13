@@ -19,7 +19,7 @@ export function StackSection() {
   ];
 
   return (
-    <section id="skills" className="border-b border-border bg-background py-section">
+    <section id="skills" className="border-b border-border bg-transparent py-section">
       <div className="container-content">
         <RevealOnScroll>
           <p className="font-grotesk text-[11px] uppercase tracking-[0.35em] text-accent">

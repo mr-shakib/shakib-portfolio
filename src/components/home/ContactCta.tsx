@@ -13,7 +13,7 @@ export function ContactCta() {
   return (
     <section
       id="contact"
-      className="relative flex min-h-[80svh] flex-col justify-center overflow-hidden bg-background py-section"
+      className="relative flex min-h-[80svh] flex-col justify-center overflow-hidden bg-transparent py-section"
     >
       {/* Oversized ghost monogram backdrop, drifting against scroll */}
       <DriftOnScroll

@@ -139,7 +139,7 @@ function StatChip({
       transition={{ duration: 0.7, delay, ease: EASE }}
     >
       <div
-        className="animate-float-y rounded-2xl border border-[#16170f]/15 bg-white/55 px-4 py-3 shadow-[0_8px_30px_rgba(22,23,15,0.06)] backdrop-blur-sm"
+        className="animate-float-y rounded-2xl border border-[#16170f]/15 bg-[#f3f0e6]/55 px-4 py-3 shadow-[0_8px_30px_rgba(22,23,15,0.06)] backdrop-blur-sm"
         style={{ animationDelay: `${floatDelay}s` }}
       >
         <p className="flex items-center gap-2 font-grotesk text-[11px] font-bold uppercase tracking-[0.12em] text-[#16170f]">
@@ -215,7 +215,7 @@ export function HomeHero() {
       id="hero"
       onMouseMove={handleMouse}
       onMouseLeave={resetMouse}
-      className="relative flex min-h-svh flex-col overflow-hidden bg-[#f1efe9]"
+      className="relative flex min-h-svh flex-col overflow-hidden bg-[#e7e2d4]"
     >
       {/* ── Animated topographic field ─────────────────────────────────── */}
       <motion.div
@@ -237,7 +237,7 @@ export function HomeHero() {
         <path
           className="animate-blob origin-center"
           d="M170 220 C240 90 460 70 530 190 C600 310 540 470 410 520 C280 570 140 520 100 400 C70 310 110 280 170 220 Z"
-          fill="#e6e4d7"
+          fill="#ddd8c6"
         />
       </motion.svg>
       <motion.svg
@@ -253,7 +253,7 @@ export function HomeHero() {
           className="animate-blob origin-center"
           style={{ animationDelay: "-6s" }}
           d="M120 140 C170 70 300 60 340 140 C380 220 340 320 250 340 C170 360 90 320 80 240 C72 190 90 180 120 140 Z"
-          fill="#eceadd"
+          fill="#e1ddce"
         />
       </motion.svg>
 

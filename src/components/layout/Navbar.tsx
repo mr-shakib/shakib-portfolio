@@ -1,34 +1,17 @@
 "use client";
 
-import { useCallback } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { useUIStore } from "@/store/useUIStore";
 import { cn } from "@/lib/utils/cn";
-import { scrollToId } from "@/lib/animations/lenis";
 
 /**
- * Athletic-brand header: stacked wordmark left, monogram center, volt pill +
- * hamburger card right. Wordmark and monogram use blend-difference so they
- * stay legible over both the cream hero and the dark sections.
+ * Minimal header: a volt Resume pill and the hamburger menu card, pinned to the
+ * top-right. The wordmark/monogram live in the hero and footer instead.
  */
 export function Navbar() {
-  const pathname = usePathname();
-  const isHome = pathname === "/";
   const toggleMenu = useUIStore((s) => s.toggleMenu);
   const menuOpen = useUIStore((s) => s.menuOpen);
-
-  const goHome = useCallback(
-    (e: React.MouseEvent) => {
-      if (isHome) {
-        e.preventDefault();
-        scrollToId("hero");
-        history.replaceState(null, "", "/");
-      }
-    },
-    [isHome],
-  );
 
   return (
     <motion.header
@@ -38,35 +21,9 @@ export function Navbar() {
       className="fixed inset-x-0 top-0 z-50"
     >
       <nav
-        className="relative flex items-start justify-between px-gutter pt-4 md:pt-5"
+        className="relative flex items-start justify-end px-gutter pt-4 md:pt-5"
         aria-label="Primary"
       >
-        {/* Stacked wordmark */}
-        <Link
-          href="/"
-          onClick={goHome}
-          className="group mix-blend-difference"
-          aria-label="Shakib Howlader — home"
-        >
-          <span className="block font-display text-lg uppercase leading-[0.95] text-white transition-colors duration-300 group-hover:text-accent md:text-xl">
-            Shakib
-          </span>
-          <span className="block font-display text-lg uppercase leading-[0.95] text-white md:text-xl">
-            Howlader
-          </span>
-        </Link>
-
-        {/* Center monogram */}
-        <Link
-          href="/"
-          onClick={goHome}
-          aria-label="Home"
-          className="absolute left-1/2 top-4 -translate-x-1/2 font-display text-2xl uppercase leading-none text-white mix-blend-difference transition-transform duration-300 hover:scale-110 md:top-5"
-        >
-          SH
-        </Link>
-
-        {/* Actions */}
         <div className="flex items-center gap-2.5">
           <Link
             href="/resume"
