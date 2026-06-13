@@ -18,6 +18,8 @@ interface VelocityMarqueeProps {
   baseVelocity?: number;
   className?: string;
   textClassName?: string;
+  /** Class applied to each individual item — enables per-item hover states. */
+  itemClassName?: string;
 }
 
 /** Wrap a value into [min, max) — used to loop the track seamlessly. */
@@ -36,6 +38,7 @@ export function VelocityMarquee({
   baseVelocity = 2.4,
   className,
   textClassName,
+  itemClassName,
 }: VelocityMarqueeProps) {
   const reduced = useReducedMotion();
 
@@ -88,8 +91,8 @@ export function VelocityMarquee({
       >
         {content.map((item, i) => (
           <span key={`${item}-${i}`} className="flex flex-shrink-0 items-center">
-            <span>{item}</span>
-            <span className="mx-6 inline-block h-1.5 w-1.5 rounded-full bg-accent align-middle" />
+            <span className={itemClassName}>{item}</span>
+            <span className="mx-6 inline-block h-1.5 w-1.5 rounded-full bg-current align-middle" />
           </span>
         ))}
       </motion.div>

@@ -48,7 +48,7 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
-    font-family: var(--font-inter), system-ui, sans-serif;
+    font-family: var(--font-archivo), system-ui, sans-serif;
     overflow-x: hidden;
     min-height: 100dvh;
   }
@@ -123,6 +123,65 @@
   .text-stroke-accent {
     -webkit-text-stroke: 1px var(--color-accent);
     color: transparent;
+  }
+  .text-stroke-thick {
+    -webkit-text-stroke: 2px var(--color-foreground);
+    color: transparent;
+  }
+
+  /* Cinematic photo treatment — desaturated, punchy, brand-consistent.
+     Pairs with .img-reveal-color on a `group` ancestor for hover color pop. */
+  .img-cinematic {
+    filter: grayscale(100%) contrast(1.12) brightness(0.92);
+    transition: filter 0.7s var(--ease-out-expo);
+  }
+  .group:hover .img-cinematic.img-reveal-color {
+    filter: grayscale(0%) contrast(1.05) brightness(1);
+  }
+
+  /* Sweep-fill button: volt panel slides up under the label on hover. */
+  .btn-sweep {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .btn-sweep::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--color-accent);
+    transform: translateY(101%);
+    transition: transform 0.45s var(--ease-out-expo);
+  }
+  .btn-sweep:hover::after {
+    transform: translateY(0);
+  }
+  /* Dark variant for use on volt panels. */
+  .btn-sweep-dark::after {
+    background: var(--color-background);
+  }
+
+  /* Topographic contour backdrop — concentric organic loops, tiled large.
+     Light variant (ink lines on cream) and dark variant (pale lines on olive). */
+  .bg-topo-light {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='760' height='760' viewBox='0 0 760 760'%3E%3Cg fill='none' stroke='%23191a10' stroke-opacity='0.055' stroke-width='1.1'%3E%3Cpath d='M150 300 C210 180 400 130 510 200 C630 275 660 430 575 530 C490 630 300 660 200 575 C100 490 95 410 150 300 Z'/%3E%3Cpath d='M150 300 C210 180 400 130 510 200 C630 275 660 430 575 530 C490 630 300 660 200 575 C100 490 95 410 150 300 Z' transform='translate(380 380) scale(0.82) translate(-380 -380)'/%3E%3Cpath d='M150 300 C210 180 400 130 510 200 C630 275 660 430 575 530 C490 630 300 660 200 575 C100 490 95 410 150 300 Z' transform='translate(380 380) scale(0.64) translate(-380 -380)'/%3E%3Cpath d='M150 300 C210 180 400 130 510 200 C630 275 660 430 575 530 C490 630 300 660 200 575 C100 490 95 410 150 300 Z' transform='translate(380 380) scale(0.46) translate(-380 -380)'/%3E%3Cpath d='M150 300 C210 180 400 130 510 200 C630 275 660 430 575 530 C490 630 300 660 200 575 C100 490 95 410 150 300 Z' transform='translate(380 380) scale(0.28) translate(-380 -380)'/%3E%3Cpath d='M620 40 C680 10 740 40 750 90 C760 145 720 190 660 185 C600 180 560 130 575 85 C585 55 590 55 620 40 Z'/%3E%3Cpath d='M620 40 C680 10 740 40 750 90 C760 145 720 190 660 185 C600 180 560 130 575 85 C585 55 590 55 620 40 Z' transform='translate(665 110) scale(0.6) translate(-665 -110)'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 760px;
+  }
+  .bg-topo-dark {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='760' height='760' viewBox='0 0 760 760'%3E%3Cg fill='none' stroke='%23f1efe9' stroke-opacity='0.05' stroke-width='1.1'%3E%3Cpath d='M150 300 C210 180 400 130 510 200 C630 275 660 430 575 530 C490 630 300 660 200 575 C100 490 95 410 150 300 Z'/%3E%3Cpath d='M150 300 C210 180 400 130 510 200 C630 275 660 430 575 530 C490 630 300 660 200 575 C100 490 95 410 150 300 Z' transform='translate(380 380) scale(0.82) translate(-380 -380)'/%3E%3Cpath d='M150 300 C210 180 400 130 510 200 C630 275 660 430 575 530 C490 630 300 660 200 575 C100 490 95 410 150 300 Z' transform='translate(380 380) scale(0.64) translate(-380 -380)'/%3E%3Cpath d='M150 300 C210 180 400 130 510 200 C630 275 660 430 575 530 C490 630 300 660 200 575 C100 490 95 410 150 300 Z' transform='translate(380 380) scale(0.46) translate(-380 -380)'/%3E%3Cpath d='M150 300 C210 180 400 130 510 200 C630 275 660 430 575 530 C490 630 300 660 200 575 C100 490 95 410 150 300 Z' transform='translate(380 380) scale(0.28) translate(-380 -380)'/%3E%3Cpath d='M620 40 C680 10 740 40 750 90 C760 145 720 190 660 185 C600 180 560 130 575 85 C585 55 590 55 620 40 Z'/%3E%3Cpath d='M620 40 C680 10 740 40 750 90 C760 145 720 190 660 185 C600 180 560 130 575 85 C585 55 590 55 620 40 Z' transform='translate(665 110) scale(0.6) translate(-665 -110)'/%3E%3C/g%3E%3C/svg%3E");
+    background-size: 760px;
+  }
+
+  /* Subtle film grain laid over photographic sections. */
+  .grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.5;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 160 160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='0.32'/%3E%3C/svg%3E");
   }
 }
 

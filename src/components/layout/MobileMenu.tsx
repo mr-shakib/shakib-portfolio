@@ -8,6 +8,10 @@ import { useUIStore } from "@/store/useUIStore";
 import { scrollToId } from "@/lib/animations/lenis";
 import { MotionToggle } from "./MotionToggle";
 
+/**
+ * Full-screen menu overlay (all viewports), opened from the header hamburger.
+ * Olive panel with topographic texture and oversized index-numbered links.
+ */
 export function MobileMenu() {
   const menuOpen = useUIStore((s) => s.menuOpen);
   const setMenuOpen = useUIStore((s) => s.setMenuOpen);
@@ -28,48 +32,56 @@ export function MobileMenu() {
     <AnimatePresence>
       {menuOpen && (
         <motion.div
-          key="mobile-menu"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-40 bg-background/95 backdrop-blur-xl md:hidden"
+          key="menu-overlay"
+          initial={{ clipPath: "inset(0 0 100% 0)" }}
+          animate={{ clipPath: "inset(0 0 0% 0)" }}
+          exit={{ clipPath: "inset(0 0 100% 0)" }}
+          transition={{ duration: 0.6, ease: [0.87, 0, 0.13, 1] }}
+          className="bg-topo-dark fixed inset-0 z-40 overflow-y-auto bg-[#23241a]"
         >
-          <nav className="container-content flex h-full flex-col justify-center gap-2 pt-16">
+          <nav className="container-content flex min-h-full flex-col justify-center gap-1 py-24">
             {navLinks.map((link, i) => (
               <motion.div
                 key={link.href + link.label}
-                initial={{ opacity: 0, x: -24 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.05 * i + 0.1, ease: [0.16, 1, 0.3, 1] }}
+                initial={{ opacity: 0, y: 32 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.08 * i + 0.25, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
               >
                 <Link
                   href={link.href}
                   onClick={(e) => handleNav(e, link)}
-                  className="block py-2 font-display text-4xl text-gradient"
+                  className="group flex items-baseline gap-4 py-1"
                   aria-current={pathname === link.href ? "page" : undefined}
                 >
-                  {link.label}
+                  <span className="font-grotesk text-[10px] uppercase tracking-[0.3em] text-accent">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="font-display text-5xl uppercase leading-[1.05] text-[#f1efe9] transition-all duration-300 group-hover:translate-x-3 group-hover:text-accent md:text-7xl">
+                    {link.label}
+                  </span>
                 </Link>
               </motion.div>
             ))}
 
-            <div className="mt-10 flex flex-wrap gap-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7 }}
+              className="mt-10 flex flex-wrap items-center gap-6 border-t border-white/10 pt-6"
+            >
               {socialLinks.map((s) => (
                 <a
                   key={s.label}
                   href={s.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-muted hover:text-accent"
+                  className="font-grotesk text-[11px] uppercase tracking-[0.25em] text-[#f1efe9]/60 transition-colors hover:text-accent"
                 >
                   {s.label}
                 </a>
               ))}
-            </div>
-            <div className="mt-6">
-              <MotionToggle />
-            </div>
+              <MotionToggle className="ml-auto" />
+            </motion.div>
           </nav>
         </motion.div>
       )}

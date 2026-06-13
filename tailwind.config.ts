@@ -24,16 +24,19 @@ const config: Config = {
         border: "var(--color-border)",
       },
       fontFamily: {
-        sans: ["var(--font-inter)", "system-ui", "sans-serif"],
-        grotesk: ["var(--font-space-grotesk)", "var(--font-inter)", "sans-serif"],
-        display: ["var(--font-clash-display)", "var(--font-space-grotesk)", "sans-serif"],
+        sans: ["var(--font-archivo)", "system-ui", "sans-serif"],
+        grotesk: ["var(--font-space-grotesk)", "var(--font-archivo)", "sans-serif"],
+        display: ["var(--font-anton)", "var(--font-archivo)", "sans-serif"],
+        signature: ["var(--font-caveat)", "cursive"],
+        serif: ["var(--font-instrument-serif)", "Georgia", "serif"],
       },
       fontSize: {
-        "display-2xl": ["clamp(3.5rem, 14vw, 13rem)", { lineHeight: "0.85", letterSpacing: "-0.04em" }],
-        "display-xl": ["clamp(3rem, 11vw, 10.5rem)", { lineHeight: "0.9", letterSpacing: "-0.035em" }],
-        "display-lg": ["clamp(2.5rem, 8vw, 7rem)", { lineHeight: "0.95", letterSpacing: "-0.03em" }],
-        "display-md": ["clamp(2rem, 5.5vw, 4.5rem)", { lineHeight: "1", letterSpacing: "-0.025em" }],
-        "heading": ["clamp(1.5rem, 3vw, 2.75rem)", { lineHeight: "1.05", letterSpacing: "-0.015em" }],
+        // Anton is a condensed display face — tight leading, no negative tracking.
+        "display-2xl": ["clamp(4rem, 16vw, 15rem)", { lineHeight: "0.86", letterSpacing: "0.005em" }],
+        "display-xl": ["clamp(3.25rem, 12vw, 11.5rem)", { lineHeight: "0.88", letterSpacing: "0.005em" }],
+        "display-lg": ["clamp(2.75rem, 9vw, 8rem)", { lineHeight: "0.9", letterSpacing: "0.005em" }],
+        "display-md": ["clamp(2rem, 6vw, 5rem)", { lineHeight: "0.95", letterSpacing: "0.01em" }],
+        "heading": ["clamp(1.5rem, 3vw, 2.75rem)", { lineHeight: "1.05", letterSpacing: "0.01em" }],
       },
       spacing: {
         section: "clamp(5rem, 12vh, 10rem)",
@@ -62,12 +65,32 @@ const config: Config = {
         "spin-slow": {
           to: { transform: "rotate(360deg)" },
         },
+        "topo-drift": {
+          "0%": { backgroundPosition: "0px 0px" },
+          "100%": { backgroundPosition: "760px 0px" },
+        },
+        "float-y": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-14px)" },
+        },
+        blob: {
+          "0%, 100%": { transform: "rotate(0deg) scale(1)" },
+          "50%": { transform: "rotate(7deg) scale(1.06)" },
+        },
+        "pulse-ring": {
+          "0%": { transform: "scale(0.9)", opacity: "0.5" },
+          "100%": { transform: "scale(1.35)", opacity: "0" },
+        },
       },
       animation: {
         "fade-in": "fade-in 0.6s ease-out forwards",
         "fade-up": "fade-up 0.7s var(--ease-out-expo) forwards",
         shimmer: "shimmer 2s infinite",
         "spin-slow": "spin-slow 8s linear infinite",
+        "topo-drift": "topo-drift 70s linear infinite",
+        "float-y": "float-y 6s ease-in-out infinite",
+        blob: "blob 18s ease-in-out infinite",
+        "pulse-ring": "pulse-ring 2.6s var(--ease-out-expo) infinite",
       },
       backgroundImage: {
         "grid-pattern":
