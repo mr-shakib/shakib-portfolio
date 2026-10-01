@@ -27,12 +27,22 @@ const optionalEmail = z.preprocess(
 
 const serverSchema = z.object({
   DATABASE_URL: optionalUrl,
-  DIRECT_URL: optionalUrl,
   RESEND_API_KEY: optionalString,
   CONTACT_TO_EMAIL: optionalEmail,
   CONTACT_FROM_EMAIL: optionalString,
   UPSTASH_REDIS_REST_URL: optionalUrl,
   UPSTASH_REDIS_REST_TOKEN: optionalString,
+  // Admin panel. AUTH_SECRET signs session cookies (32+ chars). ADMIN_EMAIL +
+  // ADMIN_PASSWORD only bootstrap the first account — once it exists, the
+  // password lives (hashed) in the database and these can be removed.
+  AUTH_SECRET: z.preprocess(
+    (v) => (v === "" ? undefined : v),
+    z.string().min(32, "AUTH_SECRET must be at least 32 characters").optional(),
+  ),
+  ADMIN_EMAIL: optionalEmail,
+  ADMIN_PASSWORD: optionalString,
+  // Where admin uploads are stored on disk (served from /uploads/*).
+  UPLOAD_DIR: optionalString,
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 });
 
@@ -71,6 +81,7 @@ export const clientEnv = parsedClient.data;
 /** Feature flags derived from which integrations are configured. */
 export const features = {
   database: Boolean(env.DATABASE_URL),
+  admin: Boolean(env.DATABASE_URL && env.AUTH_SECRET),
   email: Boolean(env.RESEND_API_KEY && env.CONTACT_TO_EMAIL),
   rateLimit: Boolean(env.UPSTASH_REDIS_REST_URL && env.UPSTASH_REDIS_REST_TOKEN),
 } as const;

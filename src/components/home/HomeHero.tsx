@@ -13,10 +13,10 @@ import {
 import { useUIStore } from "@/store/useUIStore";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { scrollToId } from "@/lib/animations/lenis";
+import type { SectionContent } from "@/lib/sections/registry";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
-const INK = "#16170f";
-const ROLES = ["Researcher", "Engineer", "AI Builder", "Problem Solver"];
+const INK = "var(--color-ink)";
 
 // ── Constellation graph (viewBox 1200×620) — the "AI/research" backdrop ──
 const NODES = [
@@ -64,7 +64,7 @@ function HeroWord({
       {text.split("").map((char, i) => (
         <span key={i} className="inline-block overflow-hidden align-bottom">
           <motion.span
-            className="inline-block will-change-transform transition-colors duration-300 hover:text-accent"
+            className="inline-block will-change-transform transition-colors duration-300 hover:text-accent-ink"
             initial={reduced ? false : { y: "115%", rotate: 8 }}
             animate={animate || reduced ? { y: "0%", rotate: 0 } : {}}
             transition={{ duration: 1, delay: baseDelay + i * 0.05, ease: EASE }}
@@ -78,16 +78,16 @@ function HeroWord({
 }
 
 /** Vertically-rolling role swapper. */
-function RoleRotator({ reduced }: { reduced: boolean }) {
+function RoleRotator({ roles, reduced }: { roles: string[]; reduced: boolean }) {
   const [i, setI] = useState(0);
   useEffect(() => {
-    if (reduced) return;
-    const id = window.setInterval(() => setI((p) => (p + 1) % ROLES.length), 2200);
+    if (reduced || roles.length < 2) return;
+    const id = window.setInterval(() => setI((p) => (p + 1) % roles.length), 2200);
     return () => window.clearInterval(id);
-  }, [reduced]);
+  }, [reduced, roles.length]);
 
-  if (reduced) {
-    return <span className="text-accent">{ROLES[0]}</span>;
+  if (reduced || roles.length < 2) {
+    return <span className="text-accent-ink">{roles[0]}</span>;
   }
 
   return (
@@ -95,13 +95,13 @@ function RoleRotator({ reduced }: { reduced: boolean }) {
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.span
           key={i}
-          className="col-start-1 row-start-1 whitespace-nowrap text-accent"
+          className="col-start-1 row-start-1 whitespace-nowrap text-accent-ink"
           initial={{ y: "110%", opacity: 0 }}
           animate={{ y: "0%", opacity: 1 }}
           exit={{ y: "-110%", opacity: 0 }}
           transition={{ duration: 0.6, ease: EASE }}
         >
-          {ROLES[i]}
+          {roles[i % roles.length]}
         </motion.span>
       </AnimatePresence>
     </span>
@@ -139,18 +139,40 @@ function StatChip({
       transition={{ duration: 0.7, delay, ease: EASE }}
     >
       <div
-        className="animate-float-y rounded-2xl border border-[#16170f]/15 bg-[#f3f0e6]/55 px-4 py-3 shadow-[0_8px_30px_rgba(22,23,15,0.06)] backdrop-blur-sm"
+        className="animate-float-y rounded-2xl border border-ink/15 bg-cream-raised/55 px-4 py-3 shadow-[0_8px_30px_rgba(22,23,15,0.06)] backdrop-blur-sm"
         style={{ animationDelay: `${floatDelay}s` }}
       >
-        <p className="flex items-center gap-2 font-grotesk text-[11px] font-bold uppercase tracking-[0.12em] text-[#16170f]">
+        <p className="flex items-center gap-2 font-grotesk text-[11px] font-bold uppercase tracking-[0.12em] text-ink">
           <span className="h-1.5 w-1.5 rounded-full bg-accent" />
           {label}
         </p>
-        <p className="mt-0.5 pl-3.5 font-grotesk text-[9px] uppercase tracking-[0.18em] text-[#16170f]/55">
+        <p className="mt-0.5 pl-3.5 font-grotesk text-[10px] uppercase tracking-[0.16em] text-ink/60">
           {sub}
         </p>
       </div>
     </motion.div>
+  );
+}
+
+// Fixed slots for up to three chips: position, entrance timing, parallax side.
+const CHIP_SLOTS = [
+  { className: "left-[6%] top-[26%]", delay: 1.5, floatDelay: 0, side: "left" },
+  { className: "right-[7%] top-[30%]", delay: 1.65, floatDelay: 1, side: "right" },
+  { className: "left-[9%] bottom-[20%]", delay: 1.8, floatDelay: 1.8, side: "left" },
+] as const;
+
+/** Splits on × so the multiplication sign keeps its darker ink. */
+function Subtitle({ text }: { text: string }) {
+  const parts = text.split("×");
+  return (
+    <>
+      {parts.map((part, i) => (
+        <span key={i}>
+          {i > 0 && <span className="text-ink">×</span>}
+          {part}
+        </span>
+      ))}
+    </>
   );
 }
 
@@ -161,7 +183,7 @@ function StatChip({
  * underneath, stat chips float, and every layer responds to the cursor with
  * spring-smoothed parallax before the whole scene peels away on scroll.
  */
-export function HomeHero() {
+export function HomeHero({ content }: { content: SectionContent<"hero"> }) {
   const loaderComplete = useUIStore((s) => s.loaderComplete);
   const reduced = useReducedMotion();
   const animate = loaderComplete && !reduced;
@@ -215,7 +237,7 @@ export function HomeHero() {
       id="hero"
       onMouseMove={handleMouse}
       onMouseLeave={resetMouse}
-      className="relative flex min-h-svh flex-col overflow-hidden bg-[#e7e2d4]"
+      className="relative flex min-h-svh flex-col overflow-hidden bg-cream"
     >
       {/* ── Animated topographic field ─────────────────────────────────── */}
       <motion.div
@@ -237,7 +259,7 @@ export function HomeHero() {
         <path
           className="animate-blob origin-center"
           d="M170 220 C240 90 460 70 530 190 C600 310 540 470 410 520 C280 570 140 520 100 400 C70 310 110 280 170 220 Z"
-          fill="#ddd8c6"
+          fill="var(--color-cream-deep)"
         />
       </motion.svg>
       <motion.svg
@@ -253,33 +275,9 @@ export function HomeHero() {
           className="animate-blob origin-center"
           style={{ animationDelay: "-6s" }}
           d="M120 140 C170 70 300 60 340 140 C380 220 340 320 250 340 C170 360 90 320 80 240 C72 190 90 180 120 140 Z"
-          fill="#e1ddce"
+          fill="var(--color-cream-soft)"
         />
       </motion.svg>
-
-      {/* Counter-rotating dashed rings, centered behind the type */}
-      <div className="pointer-events-none absolute left-1/2 top-1/2 z-[4] -translate-x-1/2 -translate-y-1/2">
-        <motion.span
-          aria-hidden
-          className="absolute left-1/2 top-1/2 block h-[80vmin] w-[80vmin] -translate-x-1/2 -translate-y-1/2 rounded-full border border-dashed border-[#16170f]/10"
-          initial={reduced ? false : { opacity: 0 }}
-          animate={animate || reduced ? { opacity: 1, rotate: reduced ? 0 : 360 } : {}}
-          transition={{
-            opacity: { duration: 1.4, delay: 0.6 },
-            rotate: { duration: 90, repeat: Infinity, ease: "linear" },
-          }}
-        />
-        <motion.span
-          aria-hidden
-          className="absolute left-1/2 top-1/2 block h-[55vmin] w-[55vmin] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#16170f]/[0.08]"
-          initial={reduced ? false : { opacity: 0 }}
-          animate={animate || reduced ? { opacity: 1, rotate: reduced ? 0 : -360 } : {}}
-          transition={{
-            opacity: { duration: 1.4, delay: 0.7 },
-            rotate: { duration: 70, repeat: Infinity, ease: "linear" },
-          }}
-        />
-      </div>
 
       {/* ── Self-drawing neural constellation ──────────────────────────── */}
       <motion.svg
@@ -301,7 +299,7 @@ export function HomeHero() {
               x2={nb.x}
               y2={nb.y}
               stroke={INK}
-              strokeOpacity={0.14}
+              strokeOpacity={0.1}
               strokeWidth={1.1}
               initial={reduced ? false : { pathLength: 0, opacity: 0 }}
               animate={animate || reduced ? { pathLength: 1, opacity: 1 } : {}}
@@ -348,9 +346,9 @@ export function HomeHero() {
         animate={animate || reduced ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.8, delay: 1.2, ease: EASE }}
         style={reduced ? undefined : { opacity: furnitureOpacity }}
-        className="relative z-30 mx-auto mt-[4.5rem] px-gutter text-center font-grotesk text-[10px] uppercase tracking-[0.4em] text-[#16170f]/60 md:mt-24"
+        className="relative z-30 mx-auto mt-[4.5rem] px-gutter text-center font-grotesk text-[10px] uppercase tracking-[0.4em] text-ink/60 md:mt-24"
       >
-        AI Researcher <span className="text-[#16170f]">×</span> Engineer — Portfolio &rsquo;26
+        <Subtitle text={content.subtitle} />
       </motion.p>
 
       {/* ── Center stage: giant kinetic name + role rotator ────────────── */}
@@ -363,17 +361,20 @@ export function HomeHero() {
           initial={reduced ? false : { opacity: 0, clipPath: "inset(0 100% 0 0)" }}
           animate={animate || reduced ? { opacity: 1, clipPath: "inset(0 0% 0 0)" } : {}}
           transition={{ duration: 1.2, delay: 1.6, ease: EASE }}
-          className="mb-1 -rotate-6 font-signature text-4xl text-accent md:text-5xl"
+          className="mb-1 -rotate-6 font-signature text-4xl text-accent-ink md:text-5xl"
           aria-hidden
         >
-          Hi, I&rsquo;m
+          {content.greeting}
         </motion.span>
 
-        <h1 className="font-display uppercase leading-[0.8]" aria-label="Shakib Howlader">
+        <h1
+          className="font-display uppercase leading-[0.8]"
+          aria-label={`${content.firstName} ${content.lastName}`}
+        >
           <motion.span className="block" style={reduced ? undefined : { x: nameTopScrollX }}>
             <motion.span className="block" style={reduced ? undefined : { x: nameTopX }}>
               <HeroWord
-                text="Shakib"
+                text={content.firstName}
                 animate={animate}
                 reduced={reduced}
                 baseDelay={0.15}
@@ -384,7 +385,7 @@ export function HomeHero() {
           <motion.span className="block" style={reduced ? undefined : { x: nameBottomScrollX }}>
             <motion.span className="block" style={reduced ? undefined : { x: nameBottomX }}>
               <HeroWord
-                text="Howlader"
+                text={content.lastName}
                 outline
                 animate={animate}
                 reduced={reduced}
@@ -400,47 +401,32 @@ export function HomeHero() {
           initial={reduced ? false : { opacity: 0, y: 18 }}
           animate={animate || reduced ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.8, delay: 1.1, ease: EASE }}
-          className="mt-6 font-display text-2xl uppercase tracking-wide text-[#16170f] md:mt-8 md:text-4xl"
+          className="mt-6 font-display text-2xl uppercase tracking-wide text-ink md:mt-8 md:text-4xl"
         >
-          <span className="text-[#16170f]/50">I&rsquo;m a </span>
-          <RoleRotator reduced={reduced} />
+          {content.rolePrefix && <span className="text-ink/50">{content.rolePrefix} </span>}
+          <RoleRotator roles={content.roles} reduced={reduced} />
         </motion.p>
       </motion.div>
 
       {/* ── Floating stat chips ────────────────────────────────────────── */}
-      <StatChip
-        label="Published 2025"
-        sub="Elsevier · Data in Brief"
-        className="left-[6%] top-[26%]"
-        delay={1.5}
-        floatDelay={0}
-        animate={animate}
-        reduced={reduced}
-        px={chipLX}
-        py={chipLY}
-      />
-      <StatChip
-        label="3.92 CGPA"
-        sub="CSE · Daffodil Int’l"
-        className="right-[7%] top-[30%]"
-        delay={1.65}
-        floatDelay={1}
-        animate={animate}
-        reduced={reduced}
-        px={chipRX}
-        py={chipRY}
-      />
-      <StatChip
-        label="5+ Projects Shipped"
-        sub="Adopted by a campus"
-        className="left-[9%] bottom-[20%]"
-        delay={1.8}
-        floatDelay={1.8}
-        animate={animate}
-        reduced={reduced}
-        px={chipLX}
-        py={chipLY}
-      />
+      {content.chips.slice(0, CHIP_SLOTS.length).map((chip, i) => {
+        const slot = CHIP_SLOTS[i]!;
+        const left = slot.side === "left";
+        return (
+          <StatChip
+            key={i}
+            label={chip.label}
+            sub={chip.sub}
+            className={slot.className}
+            delay={slot.delay}
+            floatDelay={slot.floatDelay}
+            animate={animate}
+            reduced={reduced}
+            px={left ? chipLX : chipRX}
+            py={left ? chipLY : chipRY}
+          />
+        );
+      })}
 
       {/* ── Bottom-center scroll cue ───────────────────────────────────── */}
       <motion.button
@@ -450,13 +436,28 @@ export function HomeHero() {
         animate={animate || reduced ? { opacity: 1 } : {}}
         transition={{ duration: 0.8, delay: 2, ease: EASE }}
         style={reduced ? undefined : { opacity: furnitureOpacity }}
-        className="group absolute bottom-8 left-1/2 z-30 flex -translate-x-1/2 items-center gap-3 font-grotesk text-[10px] uppercase tracking-[0.3em] text-[#16170f]/70 transition-colors hover:text-[#16170f]"
+        className="group absolute bottom-16 left-1/2 z-30 flex -translate-x-1/2 items-center gap-3 font-grotesk text-[10px] uppercase tracking-[0.3em] text-ink/70 transition-colors hover:text-ink"
       >
         Scroll
-        <span className="relative inline-flex h-9 w-5 items-start justify-center rounded-full border border-[#16170f]/30 pt-1.5 transition-colors group-hover:border-accent">
-          <span className="h-2 w-px animate-bounce bg-[#16170f] group-hover:bg-accent" />
+        <span className="relative inline-flex h-9 w-5 items-start justify-center rounded-full border border-ink/30 pt-1.5 transition-colors group-hover:border-accent-ink">
+          <span className="h-2 w-px animate-bounce bg-ink group-hover:bg-accent-ink" />
         </span>
       </motion.button>
+
+      {/* Notched bottom edge — the volt band below rises into the cream as a
+          center tab (same grammar as the footer's notch) so the site's one big
+          theme shift reads as designed, not stacked. */}
+      <svg
+        viewBox="0 0 1440 56"
+        preserveAspectRatio="none"
+        className="absolute inset-x-0 bottom-0 z-10 block h-12 w-full"
+        aria-hidden
+      >
+        <path
+          d="M0 56 L0 26 L572 26 C604 26 610 4 646 4 L794 4 C830 4 836 26 868 26 L1440 26 L1440 56 Z"
+          fill="var(--color-accent)"
+        />
+      </svg>
     </section>
   );
 }

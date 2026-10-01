@@ -2,116 +2,116 @@ import type { ResearchAreaDTO, ResearchEntryDTO } from "@/lib/validations/conten
 
 /** Formal research statement, shown as the page "abstract". */
 export const researchStatement =
-  "My research sits at the intersection of computer vision, machine learning and their application to high-stakes, data-scarce domains — principally agriculture and healthcare. I am interested in models that remain robust under real-world variability, that are interpretable enough to be trusted by domain experts, and that are released alongside open, reproducible datasets. I believe the bottleneck in applied AI is rarely the architecture; it is the quality, availability and honesty of the data and evaluation around it. My work therefore pairs model development with careful dataset construction and reproducible baselines.";
+  "My research centres on trustworthy multimodal AI — systems that remain dependable when evidence is incomplete, conflicting, noisy, or collected under different real-world conditions. I am particularly interested in when models should make predictions, express uncertainty, or abstain, with an emphasis on biomedical and healthcare applications where reliability matters more than benchmark accuracy alone. I pair this with data-centric machine learning: building open datasets, careful evaluation protocols, and reproducible baselines, because the bottleneck in applied AI is rarely the architecture — it is the quality and honesty of the data and evaluation around it.";
 
 /** Sidebar metadata block — academic profile facts. */
 export const researchMeta: { label: string; value: string }[] = [
-  { label: "Field", value: "Computer Vision · Machine Learning" },
-  { label: "Domains", value: "Agriculture · Healthcare" },
-  { label: "Status", value: "Seeking MSc & research roles" },
+  { label: "Field", value: "Multimodal AI · Machine Learning" },
+  { label: "Domains", value: "Healthcare · Accessibility · Agriculture" },
+  { label: "Status", value: "Seeking advanced research opportunities" },
   { label: "Publications", value: "1 · Data in Brief (2025)" },
   { label: "Open to", value: "Collaboration & supervision" },
 ];
 
 export const researchAreasContent: ResearchAreaDTO[] = [
   {
-    id: "machine-learning",
-    slug: "machine-learning",
-    title: "Machine Learning",
+    id: "trustworthy-multimodal-ai",
+    slug: "trustworthy-multimodal-ai",
+    title: "Trustworthy Multimodal AI",
     description:
-      "Designing and training models that learn from data — from classical methods to modern deep architectures.",
+      "Systems that stay dependable when evidence is incomplete, conflicting, noisy or shifted — knowing when to predict, express uncertainty, or abstain.",
     icon: "brain",
     order: 1,
+  },
+  {
+    id: "healthcare-biomedical-ai",
+    slug: "healthcare-biomedical-ai",
+    title: "Healthcare & Biomedical AI",
+    description:
+      "Machine learning for medical images and clinical context, prioritizing reliability, uncertainty estimation, external validation and responsible decision support.",
+    icon: "heart-pulse",
+    order: 2,
   },
   {
     id: "computer-vision",
     slug: "computer-vision",
     title: "Computer Vision",
     description:
-      "Teaching machines to interpret images — classification, detection and segmentation for real-world problems.",
+      "Image classification, object detection and real-time vision systems for healthcare, accessibility and agriculture — from dataset development to deployment.",
     icon: "eye",
-    order: 2,
-  },
-  {
-    id: "healthcare-ai",
-    slug: "healthcare-ai",
-    title: "Healthcare AI",
-    description:
-      "Applying machine learning to medical and health data to support diagnosis and decision-making.",
-    icon: "heart-pulse",
     order: 3,
   },
   {
-    id: "agricultural-ai",
-    slug: "agricultural-ai",
-    title: "Agricultural AI",
+    id: "data-centric-ml",
+    slug: "data-centric-ml",
+    title: "Data-Centric Machine Learning",
     description:
-      "Precision agriculture through computer vision — crop-disease detection and yield optimization.",
-    icon: "leaf",
+      "How dataset quality, label reliability, class balance and distribution shift affect model behaviour — building datasets and protocols for reproducible research.",
+    icon: "chart",
     order: 4,
   },
   {
-    id: "human-computer-interaction",
-    slug: "human-computer-interaction",
-    title: "Human-Computer Interaction",
+    id: "nlp-rag-agents",
+    slug: "nlp-rag-agents",
+    title: "NLP, RAG & AI Agents",
     description:
-      "Crafting interfaces and interactions that are intuitive, accessible and genuinely human-centered.",
-    icon: "hand",
+      "Grounded language systems that retrieve evidence before generating — document intelligence, citation-backed RAG, conversational agents, tool use and evaluation.",
+    icon: "sparkles",
     order: 5,
-  },
-  {
-    id: "data-science",
-    slug: "data-science",
-    title: "Data Science",
-    description:
-      "Turning raw data into insight through statistical analysis, visualization and reproducible pipelines.",
-    icon: "chart",
-    order: 6,
   },
 ];
 
 export const researchEntriesContent: ResearchEntryDTO[] = [
   {
-    id: "interest-cv-agri",
+    id: "interest-trustworthy-multimodal",
     type: "INTEREST",
-    title: "Computer Vision for Agriculture",
-    body: "Building robust, field-deployable models for crop-disease detection that work under real-world variability in lighting, occlusion and capture quality.",
+    title: "Trustworthy Multimodal AI",
+    body: "Understanding when multimodal models should make predictions, express uncertainty, or abstain — under missing, conflicting, noisy and distribution-shifted evidence.",
     links: null,
-    icon: "leaf",
+    icon: "brain",
     order: 1,
   },
   {
     id: "interest-healthcare",
     type: "INTEREST",
-    title: "Trustworthy Healthcare AI",
-    body: "Developing interpretable models for medical imaging and health data where reliability and explainability are prerequisites for adoption.",
+    title: "Reliable Healthcare AI",
+    body: "Applying machine learning to medical images and clinical context with an emphasis on uncertainty estimation, external validation and responsible decision support.",
     links: null,
     icon: "heart-pulse",
     order: 2,
   },
   {
-    id: "current-eggplant",
+    id: "current-multimodal-reliability",
     type: "CURRENT",
-    title: "Eggplant Leaf Disease Classification",
-    body: "Building on our published six-class dataset of 4,089 eggplant-leaf images to develop stronger augmentation strategies and transfer-learning baselines that improve classification accuracy on harder disease classes such as mosaic virus and wilt.",
-    links: [{ label: "View dataset paper", href: "/publications/eggplant-leaf-disease-dataset" }],
+    title: "Reliability Under Clinical Missingness & Shift",
+    body: "Working toward advanced research in reliable multimodal machine learning — clinical-context missingness, uncertainty quantification, selective prediction and cross-hospital distribution shift.",
+    links: null,
     icon: "microscope",
     order: 1,
   },
   {
-    id: "past-baselines",
+    id: "past-asl",
+    type: "PAST",
+    title: "Real-Time Sign-Language Recognition (Undergraduate Thesis)",
+    body: "Designed an accessibility-focused system that recognizes ASL gestures from a live camera feed, assembles detected signs into text and synthesizes speech — combining YOLO-based detection, temporal smoothing and real-time inference.",
+    links: [{ label: "View project", href: "/projects/asl-to-voice" }],
+    icon: "eye",
+    order: 1,
+  },
+  {
+    id: "past-eggplant",
     type: "PAST",
     title: "Eggplant Leaf Disease Dataset (Data in Brief, 2025)",
     body: "Led the construction and open release of a 4,089-image, six-class eggplant-leaf dataset captured under varied field and lighting conditions — manually labelled and preprocessed for reproducible computer-vision research. Published in Elsevier's Data in Brief.",
     links: [{ label: "Read publication", href: "/publications/eggplant-leaf-disease-dataset" }],
     icon: "database",
-    order: 1,
+    order: 2,
   },
   {
-    id: "future-multimodal",
+    id: "future-trustworthy-clinical",
     type: "FUTURE",
-    title: "Multimodal Crop-Health Monitoring",
-    body: "Combining imagery with environmental and sensor data for earlier, more accurate detection of plant stress — a direction I aim to pursue at MSc level.",
+    title: "Dependable AI for High-Stakes Environments",
+    body: "Contributing to AI systems that can operate responsibly in healthcare and other high-stakes settings — pairing multimodal modelling with rigorous evaluation of when systems should defer to humans.",
     links: null,
     icon: "sparkles",
     order: 1,
@@ -132,7 +132,7 @@ export const researchEntriesContent: ResearchEntryDTO[] = [
     id: "collab-open",
     type: "COLLABORATION",
     title: "Open to Collaboration",
-    body: "Actively seeking research collaborations and MSc supervision in computer vision, agricultural AI and healthcare AI.",
+    body: "Actively seeking research collaborations and supervision in trustworthy multimodal AI, healthcare AI, computer vision and grounded language systems.",
     links: [{ label: "Get in touch", href: "/contact" }],
     icon: "users",
     order: 1,

@@ -16,8 +16,8 @@ export function ResearchAreasSection({ areas }: { areas: ResearchAreaDTO[] }) {
             Fields of inquiry.
           </h2>
           <p className="mt-4 max-w-prose leading-relaxed text-muted">
-            Intersecting domains where I focus my research — from the methods of machine learning to
-            their application in agriculture and healthcare.
+            Intersecting domains where I focus my research — from trustworthy multimodal AI to its
+            application in healthcare, accessibility and agriculture.
           </p>
         </div>
         <Button href="/research" variant="link" className="shrink-0">

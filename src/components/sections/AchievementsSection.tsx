@@ -11,6 +11,8 @@ const typeLabels: Record<AchievementDTO["type"], string> = {
   AWARD: "Recognition",
   CONTEST: "Contest",
   ACADEMIC: "Academic",
+  CAREER: "Career",
+  PROJECT: "Project",
 };
 
 export function AchievementsSection({ achievements }: { achievements: AchievementDTO[] }) {

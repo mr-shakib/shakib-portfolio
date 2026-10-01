@@ -1,19 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getProjects, getProjectBySlug } from "@/lib/data/projects";
+import { getProjectBySlug } from "@/lib/data/projects";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { projectJsonLd } from "@/lib/seo/jsonld";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-
-export const revalidate = 3600;
-
-export async function generateStaticParams() {
-  const projects = await getProjects();
-  return projects.map((p) => ({ slug: p.slug }));
-}
 
 export async function generateMetadata({
   params,

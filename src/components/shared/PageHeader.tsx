@@ -1,5 +1,6 @@
-import { AnimatedText } from "@/components/shared/AnimatedText";
+import { Eyebrow } from "@/components/shared/Eyebrow";
 import { Parallax } from "@/components/shared/Parallax";
+import { SplitHeading } from "@/components/shared/SplitHeading";
 
 interface PageHeaderProps {
   eyebrow?: string;
@@ -7,20 +8,26 @@ interface PageHeaderProps {
   description?: string;
 }
 
-/** Standard hero header for routed content pages — clean, editorial, spacious. */
+/**
+ * Standard hero header for routed content pages — same kicker + character-mask
+ * display treatment as the home sections, so route pages read as one site.
+ */
 export function PageHeader({ eyebrow, title, description }: PageHeaderProps) {
   return (
     <header className="container-content pb-16 pt-40">
       {eyebrow && (
-        <span className="flex items-center gap-3 text-sm uppercase tracking-[0.25em] text-accent">
+        <Eyebrow className="flex items-center gap-3">
           <span className="h-px w-10 bg-accent/60" aria-hidden />
           {eyebrow}
-        </span>
+        </Eyebrow>
       )}
       <Parallax amount={18}>
-        <h1 className="mt-5 max-w-5xl font-display text-display-lg font-semibold leading-[0.9] text-foreground">
-          <AnimatedText text={title} mode="word" />
-        </h1>
+        <SplitHeading
+          as="h1"
+          lines={[{ text: title }]}
+          className="mt-5 max-w-5xl"
+          lineClassName="text-display-lg leading-[0.9] text-foreground"
+        />
       </Parallax>
       {description && (
         <p className="mt-7 max-w-prose text-lg leading-relaxed text-muted">{description}</p>

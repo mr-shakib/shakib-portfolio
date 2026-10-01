@@ -1,0 +1,11 @@
+node_modules
+.next
+.git
+/uploads
+.env
+.env*.local
+.env.production
+*.tsbuildinfo
+npm-debug.log*
+.vercel
+coverage

@@ -14,13 +14,13 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Self-contained server bundle for the Docker image (see Dockerfile).
+  output: "standalone",
   images: {
     formats: ["image/avif", "image/webp"],
     remotePatterns: [
       { protocol: "https", hostname: "**.public.blob.vercel-storage.com" },
       { protocol: "https", hostname: "images.unsplash.com" },
-      // Stable placeholder photos until real screenshots are added.
-      { protocol: "https", hostname: "picsum.photos" },
     ],
   },
   // three.js ships untranspiled ESM that benefits from being transpiled by Next.

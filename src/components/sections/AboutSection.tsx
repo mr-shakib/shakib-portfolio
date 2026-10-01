@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { Section } from "@/components/shared/Section";
 import { SectionHeading } from "@/components/shared/SectionHeading";
 import { ParallaxImage } from "@/components/shared/ParallaxImage";
-import { aboutTimeline, aboutBio } from "@/content/stats";
+import { aboutTimeline, aboutBio, quickFacts } from "@/content/stats";
 import { gsap, ScrollTrigger, registerGsap } from "@/lib/animations/gsap";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
@@ -47,6 +47,14 @@ export function AboutSection() {
             description="A path that runs through engineering, research and building tools people actually use — heading toward graduate research."
           />
           <p className="mt-6 max-w-md leading-relaxed text-muted">{aboutBio}</p>
+          <dl className="mt-8 flex max-w-md flex-col gap-3 border-l border-border pl-5">
+            {quickFacts.map((fact) => (
+              <div key={fact.label}>
+                <dt className="text-xs uppercase tracking-widest text-accent">{fact.label}</dt>
+                <dd className="mt-0.5 text-sm leading-relaxed text-muted">{fact.value}</dd>
+              </div>
+            ))}
+          </dl>
           <ParallaxImage
             src="/images/portrait.jpg"
             alt="Shakib Howlader at the Department of Computer Science & Engineering"

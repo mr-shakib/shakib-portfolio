@@ -2,20 +2,24 @@ import Link from "next/link";
 import type { PublicationDTO } from "@/lib/validations/content";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { ClipReveal } from "@/components/shared/ClipReveal";
+import type { SectionContent } from "@/lib/sections/registry";
 
 /**
  * Featured publication — the full-bleed accent-inverted section. Black type on
  * the signature volt panel, dataset facts rendered like a spec sheet.
  */
-export function PublicationSpotlight({ publication }: { publication: PublicationDTO | null }) {
+export function PublicationSpotlight({
+  content,
+  publication,
+}: {
+  content: SectionContent<"spotlight">;
+  publication: PublicationDTO | null;
+}) {
   if (!publication) return null;
 
   const year = publication.publishedDate?.getFullYear() ?? "";
-  const facts = [
-    { value: "4,089", label: "Labelled images" },
-    { value: "6", label: "Disease classes" },
-    { value: "Open", label: "Access dataset" },
-  ];
+  const facts = content.facts;
+  const meta = [publication.venue, content.publisher, year].filter(Boolean).join(" · ");
 
   return (
     <section id="featured-publication" className="bg-background">
@@ -25,10 +29,10 @@ export function PublicationSpotlight({ publication }: { publication: Publication
         <RevealOnScroll>
           <div className="flex flex-wrap items-center justify-between gap-4">
             <p className="font-grotesk text-[11px] uppercase tracking-[0.35em]">
-              Featured publication — first author
+              05 — {content.eyebrow}
             </p>
             <p className="font-grotesk text-[11px] uppercase tracking-[0.35em]">
-              {publication.venue} · Elsevier · {year}
+              {meta}
             </p>
           </div>
         </RevealOnScroll>
@@ -39,7 +43,7 @@ export function PublicationSpotlight({ publication }: { publication: Publication
           </h2>
         </RevealOnScroll>
 
-        <div className="mt-12 grid gap-10 lg:grid-cols-[1fr_auto]">
+        <div className={facts.length ? "mt-12 grid gap-10 lg:grid-cols-[1fr_auto]" : "mt-12"}>
           <RevealOnScroll delay={0.15}>
             <p className="max-w-2xl text-sm leading-relaxed text-background/80 md:text-base">
               {publication.impact}
@@ -50,7 +54,7 @@ export function PublicationSpotlight({ publication }: { publication: Publication
                   href={publication.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="group inline-flex items-center gap-3 bg-background px-6 py-3 font-grotesk text-[11px] uppercase tracking-[0.3em] text-foreground transition-transform duration-300 hover:-translate-y-1 hover:shadow-[0_8px_0_rgba(10,10,10,0.35)]"
+                  className="btn-sweep group inline-flex items-center gap-3 bg-background px-6 py-3 font-grotesk text-[11px] uppercase tracking-[0.3em] text-foreground transition-colors duration-300 hover:text-background"
                 >
                   Read the paper{" "}
                   <span
@@ -70,9 +74,10 @@ export function PublicationSpotlight({ publication }: { publication: Publication
             </div>
           </RevealOnScroll>
 
+          {facts.length > 0 && (
           <div className="flex gap-10 lg:flex-col lg:gap-6 lg:border-l lg:border-background/25 lg:pl-10">
             {facts.map((fact, i) => (
-              <RevealOnScroll key={fact.label} delay={0.2 + i * 0.08}>
+              <RevealOnScroll key={`${fact.label}-${i}`} delay={0.2 + i * 0.08}>
                 <p className="font-display text-5xl uppercase leading-none md:text-6xl">
                   {fact.value}
                 </p>
@@ -82,13 +87,16 @@ export function PublicationSpotlight({ publication }: { publication: Publication
               </RevealOnScroll>
             ))}
           </div>
+          )}
         </div>
 
+            {publication.doi && (
             <RevealOnScroll delay={0.25}>
               <p className="mt-12 border-t border-background/25 pt-6 font-grotesk text-[10px] uppercase tracking-[0.25em] text-background/70">
                 DOI {publication.doi}
               </p>
             </RevealOnScroll>
+            )}
           </div>
         </div>
       </ClipReveal>

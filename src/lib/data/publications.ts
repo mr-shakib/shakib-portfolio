@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { features } from "@/lib/env";
+import { cachedQuery } from "@/lib/data/cache";
 import { publicationSchema, type PublicationDTO } from "@/lib/validations/content";
 import { publicationsContent } from "@/content/publications";
 
@@ -10,11 +11,13 @@ export const getPublications = cache(async (): Promise<PublicationDTO[]> => {
       (a, b) => b.publishedDate.getTime() - a.publishedDate.getTime(),
     );
   }
-  const { prisma } = await import("@/lib/prisma");
-  const rows = await prisma.publication.findMany({
-    where: { status: "PUBLISHED" },
-    orderBy: { publishedDate: "desc" },
-  });
+  const rows = await cachedQuery("publications", async () => {
+    const { prisma } = await import("@/lib/prisma");
+    return prisma.publication.findMany({
+      where: { status: "PUBLISHED" },
+      orderBy: { publishedDate: "desc" },
+    });
+  })();
   return rows.map((r) => publicationSchema.parse(r));
 });
 

@@ -10,11 +10,18 @@ const MAX_REQUESTS = 5;
 
 const hits = new Map<string, number[]>();
 
-export function checkRateLimit(identifier: string): { success: boolean; remaining: number } {
+/**
+ * Sliding-window check. Callers sharing a limiter should namespace their
+ * identifier (e.g. `login:<ipHash>`) so buckets don't collide.
+ */
+export function checkRateLimit(
+  identifier: string,
+  { limit = MAX_REQUESTS, windowMs = WINDOW_MS }: { limit?: number; windowMs?: number } = {},
+): { success: boolean; remaining: number } {
   const now = Date.now();
-  const timestamps = (hits.get(identifier) ?? []).filter((t) => now - t < WINDOW_MS);
+  const timestamps = (hits.get(identifier) ?? []).filter((t) => now - t < windowMs);
 
-  if (timestamps.length >= MAX_REQUESTS) {
+  if (timestamps.length >= limit) {
     hits.set(identifier, timestamps);
     return { success: false, remaining: 0 };
   }
@@ -25,11 +32,20 @@ export function checkRateLimit(identifier: string): { success: boolean; remainin
   // Opportunistic cleanup to bound memory.
   if (hits.size > 5000) {
     for (const [key, ts] of hits) {
-      if (ts.every((t) => now - t >= WINDOW_MS)) hits.delete(key);
+      if (ts.every((t) => now - t >= windowMs)) hits.delete(key);
     }
   }
 
-  return { success: true, remaining: MAX_REQUESTS - timestamps.length };
+  return { success: true, remaining: limit - timestamps.length };
+}
+
+/**
+ * Client IP behind a reverse proxy. The last X-Forwarded-For entry is the one
+ * appended by our own proxy; earlier entries are client-supplied and spoofable.
+ */
+export function clientIp(headers: Headers): string {
+  const forwarded = headers.get("x-forwarded-for")?.split(",").pop()?.trim();
+  return forwarded || headers.get("x-real-ip") || "unknown";
 }
 
 /** Stable, non-reversible identifier for an IP (avoids storing raw IPs). */

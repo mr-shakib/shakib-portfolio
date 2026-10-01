@@ -6,7 +6,7 @@ import { ResearchSection } from "@/components/research/ResearchSection";
 import { ReferenceItem } from "@/components/research/ReferenceItem";
 import { getResearchAreas, getResearchEntries } from "@/lib/data/research";
 import { getPublications } from "@/lib/data/publications";
-import { researchStatement, researchMeta } from "@/content/research";
+import { getSection } from "@/lib/data/sections";
 import { buildMetadata } from "@/lib/seo/metadata";
 import type { ResearchEntryDTO } from "@/lib/validations/content";
 
@@ -16,8 +16,6 @@ export const metadata: Metadata = buildMetadata({
     "Research statement, interests, current and past work, datasets, future directions and collaboration opportunities of Shakib Howlader.",
   path: "/research",
 });
-
-export const revalidate = 3600;
 
 const toc: TocItem[] = [
   { id: "interests", index: "01", label: "Research Interests" },
@@ -62,10 +60,11 @@ function EntryRows({ entries }: { entries: ResearchEntryDTO[] }) {
 }
 
 export default async function ResearchPage() {
-  const [areas, entries, publications] = await Promise.all([
+  const [areas, entries, publications, page] = await Promise.all([
     getResearchAreas(),
     getResearchEntries(),
     getPublications(),
+    getSection("researchPage"),
   ]);
 
   const byType = (t: ResearchEntryDTO["type"]) => entries.filter((e) => e.type === t);
@@ -80,10 +79,10 @@ export default async function ResearchPage() {
       {/* Title block */}
       <header className="container-content pb-12 pt-40">
         <span className="font-mono text-xs uppercase tracking-[0.25em] text-accent">
-          Research Profile
+          {page.eyebrow}
         </span>
         <h1 className="mt-5 max-w-4xl font-display text-display-lg font-semibold leading-[0.9] text-foreground">
-          Research statement &amp; programme
+          {page.title}
         </h1>
       </header>
 
@@ -95,8 +94,8 @@ export default async function ResearchPage() {
               Abstract
             </span>
             <dl className="flex flex-col gap-3">
-              {researchMeta.map((m) => (
-                <div key={m.label} className="flex flex-col">
+              {page.meta.map((m, i) => (
+                <div key={`${m.label}-${i}`} className="flex flex-col">
                   <dt className="font-mono text-[0.7rem] uppercase tracking-wider text-muted/50">
                     {m.label}
                   </dt>
@@ -105,7 +104,7 @@ export default async function ResearchPage() {
               ))}
             </dl>
           </div>
-          <p className="max-w-prose text-lg leading-relaxed text-muted">{researchStatement}</p>
+          <p className="max-w-prose text-lg leading-relaxed text-muted">{page.statement}</p>
         </div>
       </Section>
 
@@ -190,15 +189,12 @@ export default async function ResearchPage() {
             <ResearchSection id="collaboration" index="07" title="Collaboration">
               <EntryRows entries={collaboration} />
               <div className="mt-8 rounded-2xl border border-accent/30 bg-accent-soft/30 p-8">
-                <p className="max-w-prose leading-relaxed text-foreground">
-                  I am actively seeking MSc supervision and research collaborations in computer
-                  vision, agricultural AI and healthcare AI.
-                </p>
+                <p className="max-w-prose leading-relaxed text-foreground">{page.collaboration}</p>
                 <Link
                   href="/contact"
                   className="mt-5 inline-flex h-11 items-center rounded-full bg-foreground px-6 text-sm font-medium text-background transition-colors hover:bg-accent"
                 >
-                  Get in touch →
+                  {page.collaborationCta}
                 </Link>
               </div>
             </ResearchSection>

@@ -1,17 +1,28 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
+import { Eyebrow } from "@/components/shared/Eyebrow";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { WordFill } from "@/components/shared/WordFill";
 import { ParallaxImage } from "@/components/shared/ParallaxImage";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { Emphasis } from "@/components/shared/Emphasis";
+import type { SectionContent } from "@/lib/sections/registry";
 
 /**
  * Personal message — the quiet, human beat between the loud display sections.
  * The quote brightens word-by-word as you read/scroll, the portrait drifts in
  * parallax inside its frame, and the signature wipes in as if being written.
  */
-export function SignatureNote() {
+export function SignatureNote({
+  content,
+  name,
+}: {
+  content: SectionContent<"about">;
+  /** Alt text for the portrait. */
+  name: string;
+}) {
   const reduced = useReducedMotion();
 
   return (
@@ -19,27 +30,20 @@ export function SignatureNote() {
       <div className="container-content grid items-center gap-12 md:grid-cols-[1fr_auto]">
         <div className="max-w-3xl">
           <RevealOnScroll>
-            <p className="font-grotesk text-[11px] uppercase tracking-[0.35em] text-accent">
-              A note from Shakib
-            </p>
+            <Eyebrow number="01">{content.eyebrow}</Eyebrow>
           </RevealOnScroll>
 
           <div className="mt-8">
             <WordFill
               as="blockquote"
-              text={
-                "“The bottleneck in applied AI is rarely the architecture — it’s the data. So I build both: open datasets the community can trust, and the software that puts them to work.”"
-              }
+              text={content.quote}
               className="text-2xl font-medium leading-snug text-foreground md:text-4xl"
             />
           </div>
 
           <RevealOnScroll delay={0.15}>
             <p className="mt-8 max-w-xl text-sm leading-relaxed text-muted md:text-base">
-              Computer Science &amp; Engineering graduate (3.92 CGPA, Daffodil International
-              University). First-author publication in Elsevier&rsquo;s{" "}
-              <span className="text-foreground">Data in Brief</span>. Now heading toward an
-              MSc — and eventually a PhD — in AI and machine learning.
+              <Emphasis text={content.bio} className="text-foreground" />
             </p>
           </RevealOnScroll>
 
@@ -53,15 +57,33 @@ export function SignatureNote() {
             className="mt-10 font-signature text-5xl text-accent md:text-6xl"
             aria-hidden
           >
-            Shakib
+            {content.signature}
           </motion.p>
+
+          {/* Small inline portrait keeps the human element below md, where the
+              full parallax frame is hidden. */}
+          {content.portrait && (
+          <RevealOnScroll delay={0.2} className="mt-8 md:hidden">
+            <div className="relative inline-block">
+              <Image
+                src={content.portrait}
+                alt={name}
+                width={112}
+                height={140}
+                className="img-cinematic h-36 w-28 object-cover object-top"
+              />
+              <span aria-hidden className="pointer-events-none absolute inset-0 border border-border" />
+            </div>
+          </RevealOnScroll>
+          )}
         </div>
 
+        {content.portrait && (
         <RevealOnScroll delay={0.15} className="hidden md:block">
           <div className="relative">
             <ParallaxImage
-              src="/images/portrait.jpg"
-              alt="Shakib Howlader"
+              src={content.portrait}
+              alt={name}
               strength={0.18}
               sizes="(max-width: 1024px) 16rem, 18rem"
               imageClassName="img-cinematic object-top"
@@ -69,10 +91,11 @@ export function SignatureNote() {
             />
             <div className="pointer-events-none absolute inset-0 border border-border" />
             <p className="absolute bottom-3 left-3 font-grotesk text-[10px] uppercase tracking-[0.3em] text-foreground/80">
-              SH — Portfolio &rsquo;26
+              {content.caption}
             </p>
           </div>
         </RevealOnScroll>
+        )}
       </div>
     </section>
   );

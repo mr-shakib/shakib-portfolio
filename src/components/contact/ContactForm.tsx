@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { submitContact } from "@/lib/actions/contact";
 import type { ContactState } from "@/lib/validations/contact";
@@ -12,12 +12,14 @@ const initialState: ContactState = { status: "idle" };
 export function ContactForm() {
   const [state, formAction, pending] = useActionState(submitContact, initialState);
   const mountedAt = useRef<number>(Date.now());
-  const [elapsed, setElapsed] = useState("0");
+  const elapsedRef = useRef<HTMLInputElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
 
-  // Capture time-on-form for the spam time-trap, set just before submit.
+  // Capture time-on-form for the spam time-trap. Written straight to the DOM:
+  // React reads the FormData right after onSubmit, before any state update
+  // would re-render, so a setState here would always submit the stale "0".
   const handleSubmit = () => {
-    setElapsed(String(Date.now() - mountedAt.current));
+    if (elapsedRef.current) elapsedRef.current.value = String(Date.now() - mountedAt.current);
   };
 
   useEffect(() => {
@@ -34,7 +36,7 @@ export function ContactForm() {
         <label htmlFor="company">Company</label>
         <input id="company" name="company" type="text" tabIndex={-1} autoComplete="off" />
       </div>
-      <input type="hidden" name="elapsedMs" value={elapsed} />
+      <input ref={elapsedRef} type="hidden" name="elapsedMs" defaultValue="0" />
 
       <div className="grid gap-5 sm:grid-cols-2">
         <Input

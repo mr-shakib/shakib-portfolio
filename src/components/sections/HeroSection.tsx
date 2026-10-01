@@ -32,7 +32,7 @@ export function HeroSection() {
             className="flex items-center gap-3 text-sm uppercase tracking-[0.25em] text-accent"
           >
             <span className="h-px w-10 bg-accent/50" aria-hidden />
-            Computer Science · Research · AI
+            Software Engineering · AI · Research
           </motion.span>
         </Parallax>
 

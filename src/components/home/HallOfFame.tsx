@@ -4,9 +4,10 @@ import { useRef } from "react";
 import { gsap, ScrollTrigger, registerGsap } from "@/lib/animations/gsap";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { Eyebrow } from "@/components/shared/Eyebrow";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { SplitHeading } from "@/components/shared/SplitHeading";
-import { aboutTimeline } from "@/content/stats";
+import type { SectionContent } from "@/lib/sections/registry";
 
 /**
  * Milestone hall of fame — a pinned horizontal gallery. The section locks to
@@ -15,7 +16,7 @@ import { aboutTimeline } from "@/content/stats";
  * Falls back to native horizontal swipe on touch/small screens and to a plain
  * row for reduced motion.
  */
-export function HallOfFame() {
+export function HallOfFame({ content }: { content: SectionContent<"journey"> }) {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
@@ -67,7 +68,7 @@ export function HallOfFame() {
     });
 
     return () => mm.revert();
-  }, [reduced]);
+  }, [reduced, content.items.length]);
 
   return (
     <section
@@ -78,16 +79,14 @@ export function HallOfFame() {
       <div className="flex min-h-svh flex-col justify-center py-16 lg:py-0">
         <div className="container-content">
           <RevealOnScroll>
-            <p className="font-grotesk text-[11px] uppercase tracking-[0.35em] text-accent">
-              03 — The journey
-            </p>
+            <Eyebrow number="08">{content.eyebrow}</Eyebrow>
           </RevealOnScroll>
           <div className="mt-4 flex flex-wrap items-end justify-between gap-6">
             <SplitHeading
               as="h2"
               lines={[
-                { text: "Milestone", className: "text-foreground" },
-                { text: "Hall of Fame", outline: true },
+                { text: content.headingTop, className: "text-foreground" },
+                { text: content.headingBottom, outline: true },
               ]}
               lineClassName="text-display-lg leading-[0.9]"
             />
@@ -99,18 +98,18 @@ export function HallOfFame() {
           </div>
         </div>
 
-        {/* The rail: pinned glide on desktop, native swipe below lg */}
-        <div className="no-scrollbar mt-12 overflow-x-auto lg:overflow-visible">
+        {/* The rail: pinned glide on desktop, snap-assisted swipe below lg */}
+        <div className="no-scrollbar mt-12 snap-x snap-mandatory overflow-x-auto lg:snap-none lg:overflow-visible">
           <div
             ref={trackRef}
             className="flex w-max gap-px border-y border-border bg-border pl-gutter pr-gutter will-change-transform"
           >
-            {aboutTimeline.map((item) => {
+            {content.items.map((item, i) => {
               const yearLabel = item.stage.split("—")[0]?.trim() ?? item.stage;
               return (
                 <article
-                  key={item.title}
-                  className="group relative flex h-[26rem] w-[20rem] shrink-0 flex-col justify-end overflow-hidden bg-surface p-7 transition-colors duration-500 hover:bg-background sm:w-[24rem] lg:h-[30rem] lg:w-[28rem]"
+                  key={`${item.title}-${i}`}
+                  className="group relative flex h-[26rem] w-[20rem] shrink-0 snap-start flex-col justify-end overflow-hidden bg-surface p-7 transition-colors duration-500 hover:bg-background sm:w-[24rem] lg:h-[30rem] lg:w-[28rem]"
                 >
                   {/* Grey→volt fade mask, swapping on hover */}
                   <span
@@ -123,7 +122,7 @@ export function HallOfFame() {
                   />
                   <p
                     aria-hidden
-                    className="fame-year pointer-events-none absolute -right-4 -top-6 font-display text-[9rem] uppercase leading-none text-foreground/[0.06] transition-colors duration-500 group-hover:text-accent/20 lg:text-[12rem]"
+                    className="fame-year pointer-events-none absolute -right-4 -top-6 font-display text-[9rem] uppercase leading-none text-foreground/[0.06] transition-colors duration-500 [mask-image:linear-gradient(to_bottom,transparent,black_38%)] group-hover:text-accent/20 lg:text-[12rem]"
                   >
                     {yearLabel}
                   </p>
@@ -142,16 +141,15 @@ export function HallOfFame() {
             })}
 
             {/* Closing volt card */}
-            <article className="flex h-[26rem] w-[20rem] shrink-0 flex-col items-start justify-end bg-accent p-7 sm:w-[24rem] lg:h-[30rem] lg:w-[28rem]">
+            <article className="flex h-[26rem] w-[20rem] shrink-0 snap-start flex-col items-start justify-end bg-accent p-7 sm:w-[24rem] lg:h-[30rem] lg:w-[28rem]">
               <p aria-hidden className="font-display text-[9rem] uppercase leading-none text-background/15 lg:text-[12rem]">
                 ???
               </p>
               <h3 className="mt-3 font-display text-3xl uppercase leading-tight text-background lg:text-4xl">
-                The next chapter
+                {content.closingTitle}
               </h3>
               <p className="mt-4 max-w-md text-sm leading-relaxed text-background/75">
-                MSc, PhD, and research that ships. The best milestones aren&rsquo;t on this
-                wall yet.
+                {content.closingBody}
               </p>
             </article>
           </div>

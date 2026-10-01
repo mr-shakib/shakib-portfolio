@@ -3,7 +3,7 @@
 import { headers } from "next/headers";
 import { contactSchema, type ContactState } from "@/lib/validations/contact";
 import { features } from "@/lib/env";
-import { checkRateLimit, hashIp } from "@/lib/rate-limit";
+import { checkRateLimit, clientIp, hashIp } from "@/lib/rate-limit";
 
 /**
  * Contact submission. Validates with Zod, enforces honeypot + time-trap +
@@ -44,10 +44,7 @@ export async function submitContact(
   }
 
   // Rate limit by hashed IP.
-  const hdrs = await headers();
-  const ip =
-    hdrs.get("x-forwarded-for")?.split(",")[0]?.trim() ?? hdrs.get("x-real-ip") ?? "unknown";
-  const ipHash = await hashIp(ip);
+  const ipHash = await hashIp(clientIp(await headers()));
   const { success } = checkRateLimit(ipHash);
   if (!success) {
     return {

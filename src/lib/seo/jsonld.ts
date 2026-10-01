@@ -66,5 +66,6 @@ export function projectJsonLd(project: ProjectDTO) {
 
 /** Serializable <script> payload helper. */
 export function jsonLdScript(data: object) {
-  return { __html: JSON.stringify(data) };
+  // Escape "<" so admin-edited text containing "</script>" can't end the tag early.
+  return { __html: JSON.stringify(data).replace(/</g, "\\u003c") };
 }

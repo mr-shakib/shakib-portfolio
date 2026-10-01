@@ -1,0 +1,49 @@
+# Self-hosted stack: Postgres + the Next.js app.
+#
+#   Local dev:   docker compose up -d db        (then `npm run dev` on the host)
+#   Production:  docker compose up -d --build   (put Caddy/Nginx in front for HTTPS)
+#
+# Both services read .env — see .env.example.
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-portfolio}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-portfolio}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    # Bound to localhost only: reachable from the host (migrations, backups),
+    # never from the internet.
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:?set NEXT_PUBLIC_SITE_URL in .env}
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      # Inside the compose network the database is reachable as "db".
+      DATABASE_URL: postgresql://${POSTGRES_USER:-portfolio}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB:-portfolio}
+      UPLOAD_DIR: /app/uploads
+    volumes:
+      - uploads:/app/uploads
+    ports:
+      - "127.0.0.1:${APP_PORT:-3000}:3000"
+
+volumes:
+  pgdata:
+  uploads:

@@ -22,7 +22,7 @@ export function SkillsSection() {
     const cx = 50;
     const cy = 50;
     return skillsContent.map((skill, i) => {
-      const catIndex = skillCategories.indexOf(skill.category);
+      const catIndex = (skillCategories as readonly string[]).indexOf(skill.category);
       const catCount = skillCategories.length;
       const angle = (catIndex / catCount) * Math.PI * 2 - Math.PI / 2;
       const withinCat = skillsContent

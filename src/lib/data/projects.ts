@@ -1,6 +1,7 @@
 import "server-only";
 import { cache } from "react";
 import { features } from "@/lib/env";
+import { cachedQuery } from "@/lib/data/cache";
 import { projectSchema, type ProjectDTO } from "@/lib/validations/content";
 import { projectsContent } from "@/content/projects";
 
@@ -13,11 +14,13 @@ export const getProjects = cache(async (): Promise<ProjectDTO[]> => {
   if (!features.database) {
     return [...projectsContent].sort((a, b) => a.order - b.order);
   }
-  const { prisma } = await import("@/lib/prisma");
-  const rows = await prisma.project.findMany({
-    where: { status: "PUBLISHED" },
-    orderBy: { order: "asc" },
-  });
+  const rows = await cachedQuery("projects", async () => {
+    const { prisma } = await import("@/lib/prisma");
+    return prisma.project.findMany({
+      where: { status: "PUBLISHED" },
+      orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+    });
+  })();
   return rows.map((r) => projectSchema.parse(r));
 });
 

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { Section } from "@/components/shared/Section";
 import { ContactForm } from "@/components/contact/ContactForm";
-import { socialLinks, siteConfig } from "@/config/site";
+import { getSection } from "@/lib/data/sections";
 import { buildMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = buildMetadata({
@@ -12,34 +12,38 @@ export const metadata: Metadata = buildMetadata({
   path: "/contact",
 });
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const [profile, headers] = await Promise.all([getSection("profile"), getSection("pageHeaders")]);
+
   return (
     <>
-      <PageHeader
-        eyebrow="Contact"
-        title="Let’s start a conversation."
-        description="Whether it’s research, graduate supervision or building something — I’d love to hear from you."
-      />
+      <PageHeader {...headers.contact} />
 
       <Section>
         <div className="grid gap-12 lg:grid-cols-[1fr_1.2fr]">
           <div className="flex flex-col gap-6">
             <a
-              href={`mailto:${siteConfig.email}`}
+              href={`mailto:${profile.email}`}
               className="font-display text-2xl text-foreground hover:text-accent"
             >
-              {siteConfig.email}
+              {profile.email}
             </a>
             <div className="flex flex-col gap-3">
-              {socialLinks.map((s) => (
+              {profile.socials.map((s) => (
                 <a
-                  key={s.label}
+                  key={`${s.label}-${s.href}`}
                   href={s.href}
                   target={s.href.startsWith("http") ? "_blank" : undefined}
                   rel="noopener noreferrer"
                   className="text-muted transition-colors hover:text-accent"
                 >
-                  {s.label} — <span className="text-muted/70">{s.handle}</span>
+                  {s.label}
+                  {s.handle && (
+                    <>
+                      {" "}
+                      — <span className="text-muted/70">{s.handle}</span>
+                    </>
+                  )}
                 </a>
               ))}
             </div>

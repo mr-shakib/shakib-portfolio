@@ -3,7 +3,9 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { navLinks, socialLinks, siteConfig } from "@/config/site";
+import { navLinks, siteConfig } from "@/config/site";
+import type { SectionContent } from "@/lib/sections/registry";
+import { stripEmphasis } from "@/components/shared/Emphasis";
 import { HoverRoll } from "@/components/shared/HoverRoll";
 import { scrollToId } from "@/lib/animations/lenis";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
@@ -12,8 +14,8 @@ import { cn } from "@/lib/utils/cn";
 const EASE = [0.16, 1, 0.3, 1] as const;
 // Footer shares the site's dark canvas + volt accent so it reads as the page's
 // natural conclusion rather than a separate panel.
-const FOREGROUND = "#f5f5f3";
-const ACCENT = "#c6f135";
+const FOREGROUND = "var(--color-foreground)";
+const ACCENT = "var(--color-accent)";
 
 /** Live clock in Dhaka time — the "where I am right now" detail. */
 function LocalTime() {
@@ -66,12 +68,34 @@ function StatementWord({
   );
 }
 
+/** Split the statement into words; *starred* words get the serif treatment. */
+function statementWords(text: string) {
+  const words: { text: string; serif: boolean; spaced: boolean }[] = [];
+  const re = /\*([^*]+)\*|([^\s*]+)/g;
+  let last = 0;
+  for (let m = re.exec(text); m; m = re.exec(text)) {
+    words.push({
+      text: m[1] ?? m[2] ?? "",
+      serif: m[1] !== undefined,
+      spaced: words.length > 0 && /\s/.test(text.slice(last, m.index)),
+    });
+    last = m.index + m[0].length;
+  }
+  return words;
+}
+
 /**
  * Compact sign-off: a volt glow over a notched olive panel — a mixed-typography
  * statement crossed by the signature, then a tidy brand / pages / connect row
  * and the utility bar. No oversized hero artwork, so it stays the right height.
  */
-export function Footer() {
+export function Footer({
+  content,
+  profile,
+}: {
+  content: SectionContent<"footer">;
+  profile: SectionContent<"profile">;
+}) {
   const year = new Date().getFullYear();
   const reduced = useReducedMotion();
 
@@ -99,7 +123,7 @@ export function Footer() {
       >
         <path
           d="M0 56 L0 26 L572 26 C604 26 610 4 646 4 L794 4 C830 4 836 26 868 26 L1440 26 L1440 56 Z"
-          fill="#0a0a0a"
+          fill="var(--color-background)"
         />
       </svg>
 
@@ -114,29 +138,22 @@ export function Footer() {
             aria-hidden
             className="pointer-events-none absolute right-[14%] top-0 z-10 -rotate-12 font-signature text-5xl text-accent md:text-6xl"
           >
-            Shakib
+            {content.signature}
           </motion.span>
 
           <h2
-            aria-label="Always chasing the signal."
+            aria-label={stripEmphasis(content.statement)}
             className="relative text-[clamp(2.25rem,6.5vw,5rem)] leading-[0.98]"
           >
             <span aria-hidden>
-              <StatementWord delay={0.05} reduced={reduced}>
-                Always
-              </StatementWord>{" "}
-              <StatementWord serif delay={0.15} reduced={reduced}>
-                chasing
-              </StatementWord>{" "}
-              <StatementWord delay={0.25} reduced={reduced}>
-                the
-              </StatementWord>{" "}
-              <StatementWord serif delay={0.35} reduced={reduced}>
-                signal
-              </StatementWord>
-              <StatementWord delay={0.45} reduced={reduced}>
-                .
-              </StatementWord>
+              {statementWords(content.statement).map((word, i) => (
+                <span key={i}>
+                  {word.spaced && " "}
+                  <StatementWord serif={word.serif} delay={0.05 + i * 0.1} reduced={reduced}>
+                    {word.text}
+                  </StatementWord>
+                </span>
+              ))}
             </span>
           </h2>
         </div>
@@ -155,15 +172,12 @@ export function Footer() {
             >
               SH<span className="text-accent">—</span>
             </Link>
-            <p className="max-w-xs text-sm leading-relaxed text-foreground/55">
-              Machine-learning research and full-stack engineering. Open datasets, shipped
-              software, and everything in between.
-            </p>
+            <p className="max-w-xs text-sm leading-relaxed text-foreground/55">{content.blurb}</p>
             <a
-              href={`mailto:${siteConfig.email}`}
+              href={`mailto:${profile.email}`}
               className="btn-sweep group mt-1 inline-flex items-center gap-3 border border-white/25 px-5 py-3 font-grotesk text-[11px] uppercase tracking-[0.25em] text-foreground transition-colors duration-300 hover:border-accent hover:text-[#16170f]"
             >
-              {siteConfig.email}
+              {profile.email}
               <span
                 aria-hidden
                 className="transition-transform duration-300 group-hover:translate-x-1"
@@ -199,11 +213,11 @@ export function Footer() {
             <h3 className="mb-2 font-grotesk text-[10px] uppercase tracking-[0.35em] text-foreground/50">
               Connect
             </h3>
-            {socialLinks
-              .filter((s) => s.label !== "Email")
+            {profile.socials
+              .filter((s) => s.label.toLowerCase() !== "email" && !s.href.startsWith("mailto:"))
               .map((s) => (
                 <a
-                  key={s.label}
+                  key={`${s.label}-${s.href}`}
                   href={s.href}
                   target="_blank"
                   rel="noopener noreferrer"
@@ -226,7 +240,7 @@ export function Footer() {
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-accent" />
               </span>
-              Open to collaboration — Dhaka, <LocalTime />
+              {profile.availability} — {profile.location}, <LocalTime />
             </p>
             <button
               type="button"

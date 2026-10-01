@@ -68,7 +68,7 @@ export function WildRows({ projects }: { projects: ProjectDTO[] }) {
             className="group relative block overflow-hidden border-b border-border transition-colors duration-300 hover:bg-surface"
           >
             <div className="container-content flex items-baseline gap-6 py-10 md:gap-12 md:py-14">
-              <span className="text-stroke font-display text-4xl uppercase leading-none md:text-6xl">
+              <span className="text-stroke-md font-display text-4xl uppercase leading-none md:text-6xl">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <div className="min-w-0 flex-1">

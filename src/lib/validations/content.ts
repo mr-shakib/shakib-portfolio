@@ -26,7 +26,14 @@ export const researchEntryTypeSchema = z.enum([
   "COLLABORATION",
 ]);
 
-export const achievementTypeSchema = z.enum(["PUBLICATION", "AWARD", "CONTEST", "ACADEMIC"]);
+export const achievementTypeSchema = z.enum([
+  "PUBLICATION",
+  "AWARD",
+  "CONTEST",
+  "ACADEMIC",
+  "CAREER",
+  "PROJECT",
+]);
 
 export const projectSchema = z.object({
   id: z.string(),
@@ -98,9 +105,10 @@ export const achievementSchema = z.object({
 
 export const skillSchema = z.object({
   name: z.string(),
-  category: z.enum(["Programming", "Frontend", "Backend", "AI/ML", "Research", "Cloud"]),
+  // Free text so new categories can be added from /admin.
+  category: z.string(),
   level: z.number().min(0).max(100),
-  description: z.string().optional(),
+  description: z.string().nullable().optional(),
 });
 
 export const statSchema = z.object({

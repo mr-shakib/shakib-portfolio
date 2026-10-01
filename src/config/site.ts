@@ -22,23 +22,24 @@ function resolveSiteUrl(): string {
 export const siteConfig = {
   name: "Shakib Howlader",
   shortName: "Shakib",
-  title: "Shakib Howlader — Researcher, Developer & AI Enthusiast",
-  tagline: "Researcher · Developer · AI Enthusiast · Problem Solver",
+  title: "Shakib Howlader — Software Engineer & AI Researcher",
+  tagline: "Software Engineer · AI Researcher · Problem Solver",
   description:
-    "Computer Science engineer and researcher building at the intersection of machine learning, computer vision and software engineering. Publications, research and interactive projects.",
+    "Software engineer and AI researcher building intelligent, reliable and user-focused digital solutions — Flutter applications, computer vision, NLP and AI-powered platforms. Publications, research and projects.",
   url: resolveSiteUrl(),
   locale: "en_US",
   email: "contactshakibhere@gmail.com",
-  jobTitle: "Computer Science Engineer & Researcher",
+  jobTitle: "Software Engineer & AI Researcher",
   keywords: [
     "Shakib Howlader",
+    "Software Engineer",
+    "AI Researcher",
+    "Flutter Developer",
     "Machine Learning",
     "Computer Vision",
-    "AI Researcher",
-    "Software Engineer",
+    "Trustworthy Multimodal AI",
+    "Retrieval-Augmented Generation",
     "Research Portfolio",
-    "Deep Learning",
-    "Next.js Developer",
   ],
 } as const;
 
@@ -76,10 +77,18 @@ export const homeSections = [
 ] as const;
 
 export const socialLinks = [
-  { label: "GitHub", href: "https://github.com/", handle: "@mr-shakib" },
-  { label: "LinkedIn", href: "https://www.linkedin.com/", handle: "in/shakib-howlader" },
-  { label: "Google Scholar", href: "https://scholar.google.com/", handle: "Shakib Howlader" },
-  { label: "ORCID", href: "https://orcid.org/", handle: "0009-0009-5318-2999" },
+  { label: "GitHub", href: "https://github.com/mr-shakib", handle: "@mr-shakib" },
+  {
+    label: "LinkedIn",
+    href: "https://www.linkedin.com/in/shakib-howlader/",
+    handle: "in/shakib-howlader",
+  },
+  {
+    label: "Google Scholar",
+    href: "https://scholar.google.com/citations?hl=en&user=nB4Oc4UAAAAJ",
+    handle: "Shakib Howlader",
+  },
+  { label: "ORCID", href: "https://orcid.org/0009-0009-5318-2999", handle: "0009-0009-5318-2999" },
   { label: "Email", href: "mailto:contactshakibhere@gmail.com", handle: siteConfig.email },
 ] as const;
 

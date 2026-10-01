@@ -17,6 +17,16 @@
     --color-error: #ff5a5a;
     --color-border: rgba(255, 255, 255, 0.07);
 
+    /* Light-surface palette (hero, chips, menu accents). Mirrored as rgb
+       triplets in tailwind.config.ts so opacity modifiers work. */
+    --color-ink: #16170f;
+    --color-cream: #e7e2d4;
+    --color-cream-raised: #f3f0e6;
+    --color-cream-deep: #ddd8c6;
+    --color-cream-soft: #e1ddce;
+    /* Dark-olive accent for TEXT on cream — volt fails contrast there. */
+    --color-accent-ink: #5c6e11;
+
     --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
     --ease-in-out-expo: cubic-bezier(0.87, 0, 0.13, 1);
 
@@ -91,7 +101,7 @@
   }
 
   .text-gradient {
-    background: linear-gradient(180deg, #ffffff 0%, #9ca3af 100%);
+    background: linear-gradient(180deg, #ffffff 0%, var(--color-muted) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -105,7 +115,7 @@
   }
 
   .glass {
-    background: rgba(20, 20, 23, 0.6);
+    background: rgba(17, 17, 17, 0.6);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid var(--color-border);
@@ -122,6 +132,10 @@
   }
   .text-stroke-accent {
     -webkit-text-stroke: 1px var(--color-accent);
+    color: transparent;
+  }
+  .text-stroke-md {
+    -webkit-text-stroke: 1.5px var(--color-foreground);
     color: transparent;
   }
   .text-stroke-thick {

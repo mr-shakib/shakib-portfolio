@@ -29,16 +29,23 @@ export function Counter({ value, suffix = "", duration = 1.8, className }: Count
       const progress = Math.min((now - start) / (duration * 1000), 1);
       // ease-out-expo
       const eased = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
-      setDisplay(Math.round(eased * value));
+      setDisplay(eased * value);
       if (progress < 1) raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [inView, value, duration, reduced]);
 
+  // Match the target's decimal precision (e.g. 3.92 → 2 decimals, 4089 → "4,089").
+  const decimals = String(value).split(".")[1]?.length ?? 0;
+  const formatted = display.toLocaleString("en-US", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+
   return (
     <span ref={ref} className={className}>
-      {display}
+      {formatted}
       {suffix}
     </span>
   );

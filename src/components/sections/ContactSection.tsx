@@ -11,7 +11,7 @@ export function ContactSection() {
           <SectionHeading
             eyebrow="Contact"
             title="Let’s build or research together."
-            description="Open to research collaborations, MSc supervision, and engineering opportunities."
+            description="Open to research collaborations, graduate opportunities, and engineering roles."
           />
 
           <div className="flex flex-col gap-3">

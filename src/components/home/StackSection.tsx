@@ -1,53 +1,63 @@
 import { VelocityMarquee } from "@/components/shared/VelocityMarquee";
+import { Eyebrow } from "@/components/shared/Eyebrow";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { SplitHeading } from "@/components/shared/SplitHeading";
 import { DriftOnScroll } from "@/components/shared/DriftOnScroll";
-import { skillsContent } from "@/content/skills";
-
-const pick = (categories: string[]) =>
-  skillsContent.filter((s) => categories.includes(s.category)).map((s) => s.name);
+import type { SkillDTO } from "@/lib/validations/content";
+import type { SectionContent } from "@/lib/sections/registry";
 
 /**
  * "The Stack" — the partner-wall moment, rebuilt as three counter-drifting
  * bands of oversized tool wordmarks.
  */
-export function StackSection() {
-  const rows: { label: string; items: string[]; velocity: number }[] = [
-    { label: "Languages & Backend", items: pick(["Programming", "Backend"]), velocity: 2 },
-    { label: "AI / ML & Research", items: pick(["AI/ML", "Research"]), velocity: -1.6 },
-    { label: "Frontend & Cloud", items: pick(["Frontend", "Cloud"]), velocity: 2.4 },
-  ];
+// Alternating drift speeds/directions, cycled across however many bands exist.
+const VELOCITIES = [2, -1.6, 2.4];
+
+export function StackSection({
+  content,
+  skills,
+}: {
+  content: SectionContent<"stack">;
+  skills: SkillDTO[];
+}) {
+  const rows = content.rows
+    .map((row, i) => ({
+      label: row.label,
+      items: skills.filter((s) => row.categories.includes(s.category)).map((s) => s.name),
+      velocity: VELOCITIES[i % VELOCITIES.length]!,
+    }))
+    .filter((row) => row.items.length > 0);
 
   return (
     <section id="skills" className="border-b border-border bg-transparent py-section">
       <div className="container-content">
         <RevealOnScroll>
-          <p className="font-grotesk text-[11px] uppercase tracking-[0.35em] text-accent">
-            04 — Toolkit
-          </p>
+          <Eyebrow number="07">{content.eyebrow}</Eyebrow>
         </RevealOnScroll>
         <DriftOnScroll x={40} className="mt-4">
           <SplitHeading
             as="h2"
-            lines={[{ text: "The Stack" }]}
+            lines={[{ text: content.heading }]}
             lineClassName="text-display-xl text-foreground leading-[0.88]"
           />
         </DriftOnScroll>
       </div>
 
-      <div className="mt-16">
+      {/* Each band gets its own label strip so the category never collides
+          with the drifting wordmarks. */}
+      <div className="mt-16 border-t border-border">
         {rows.map((row) => (
-          <div key={row.label} className="relative">
+          <div key={row.label} className="border-b border-border">
+            <p className="container-content pt-4 font-grotesk text-[10px] uppercase tracking-[0.3em] text-accent">
+              {row.label}
+            </p>
             <VelocityMarquee
               items={row.items}
               baseVelocity={row.velocity}
-              className="border-b border-t-0 py-4 first:border-t"
-              textClassName="font-display text-5xl uppercase text-foreground/25 md:text-7xl"
+              className="border-y-0 py-4"
+              textClassName="font-display text-5xl uppercase text-foreground/40 md:text-7xl"
               itemClassName="transition-all duration-300 hover:-translate-y-1 hover:text-accent"
             />
-            <span className="pointer-events-none absolute left-gutter top-2 font-grotesk text-[10px] uppercase tracking-[0.3em] text-accent">
-              {row.label}
-            </span>
           </div>
         ))}
       </div>

@@ -58,16 +58,30 @@ export function ProjectCard({ project, className }: ProjectCardProps) {
         href={`/projects/${project.slug}`}
         className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-surface transition-colors duration-300 hover:border-accent/40"
       >
-        {/* Cover — real image if provided, else a stable placeholder photo. */}
+        {/* Cover — real image if provided, else a generated on-brand cover:
+            grid texture + giant outlined monogram + volt accent bar. */}
         <div className="relative aspect-[16/10] overflow-hidden bg-surface-elevated">
-          <Image
-            src={project.coverImage ?? `https://picsum.photos/seed/${project.slug}/800/500`}
-            alt={project.title}
-            fill
-            sizes="(max-width: 768px) 100vw, 400px"
-            className="object-cover opacity-80 grayscale transition-all duration-700 ease-out-expo group-hover:scale-105 group-hover:opacity-100 group-hover:grayscale-0"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/30 to-transparent" />
+          {project.coverImage ? (
+            <Image
+              src={project.coverImage}
+              alt={project.title}
+              fill
+              sizes="(max-width: 768px) 100vw, 400px"
+              className="object-cover opacity-80 grayscale transition-all duration-700 ease-out-expo group-hover:scale-105 group-hover:opacity-100 group-hover:grayscale-0"
+            />
+          ) : (
+            <div aria-hidden className="absolute inset-0 bg-grid-pattern bg-[length:2.5rem_2.5rem]">
+              <span className="text-stroke-md absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 font-display text-8xl uppercase leading-none opacity-60 transition-all duration-700 ease-out-expo group-hover:scale-105 group-hover:opacity-100">
+                {project.title
+                  .split(/\s+/)
+                  .map((word) => word[0])
+                  .join("")
+                  .slice(0, 2)}
+              </span>
+              <span className="absolute bottom-0 left-0 h-1 w-1/4 bg-accent transition-[width] duration-500 ease-out-expo group-hover:w-full" />
+            </div>
+          )}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-surface via-surface/30 to-transparent" />
           <div className="absolute left-4 top-4">
             <Badge variant="accent">{categoryLabels[project.category]}</Badge>
           </div>

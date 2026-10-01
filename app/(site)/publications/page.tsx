@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { PublicationsExplorer } from "@/components/publications/PublicationsExplorer";
 import { getPublications } from "@/lib/data/publications";
+import { getSection } from "@/lib/data/sections";
 import { buildMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = buildMetadata({
@@ -11,18 +12,12 @@ export const metadata: Metadata = buildMetadata({
   path: "/publications",
 });
 
-export const revalidate = 3600;
-
 export default async function PublicationsPage() {
-  const publications = await getPublications();
+  const [publications, headers] = await Promise.all([getPublications(), getSection("pageHeaders")]);
 
   return (
     <>
-      <PageHeader
-        eyebrow="Publications"
-        title="Published research & datasets."
-        description="Openly available contributions — each with a copyable citation, BibTeX export and resolvable DOI."
-      />
+      <PageHeader {...headers.publications} />
       <div className="container-content pb-section">
         <PublicationsExplorer publications={publications} />
       </div>

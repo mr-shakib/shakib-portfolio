@@ -1,25 +1,26 @@
 import { Counter } from "@/components/shared/Counter";
+import { Eyebrow } from "@/components/shared/Eyebrow";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
-import { statsContent } from "@/content/stats";
+import type { SectionContent } from "@/lib/sections/registry";
 
 /**
  * Career-numbers band — oversized condensed numerals separated by hairlines,
  * in the style of a season stats board.
  */
-export function NumbersBand() {
+export function NumbersBand({ content }: { content: SectionContent<"stats"> }) {
   return (
     <section id="stats" className="border-b border-border bg-surface/20">
       <div className="container-content py-16 md:py-20">
         <RevealOnScroll>
-          <p className="font-grotesk text-[11px] uppercase tracking-[0.35em] text-muted">
-            Career numbers <span className="text-accent">— so far</span>
-          </p>
+          <Eyebrow number="02" className="text-muted">
+            {content.eyebrow} <span className="text-accent">{content.eyebrowAccent}</span>
+          </Eyebrow>
         </RevealOnScroll>
 
-        <div className="mt-10 grid grid-cols-2 gap-y-12 md:grid-cols-5">
-          {statsContent.map((stat, i) => (
+        <div className="mt-10 grid grid-cols-2 gap-y-12 sm:grid-cols-3 md:grid-cols-5">
+          {content.items.map((stat, i) => (
             <RevealOnScroll
-              key={stat.label}
+              key={`${stat.label}-${i}`}
               delay={i * 0.08}
               y={56}
               className="group border-l border-border pl-5 transition-colors duration-300 hover:border-accent md:pl-6"

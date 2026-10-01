@@ -1,14 +1,13 @@
 // Shakib Howlader — Portfolio data model
-// PostgreSQL via Prisma. See blueprint §6.
+// PostgreSQL via Prisma. Everything here is editable from /admin.
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 enum ContentStatus {
@@ -46,6 +45,8 @@ enum AchievementType {
   AWARD
   CONTEST
   ACADEMIC
+  CAREER
+  PROJECT
 }
 
 enum MessageStatus {
@@ -175,13 +176,53 @@ model ContactMessage {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  email        String   @unique
-  passwordHash String
-  name         String?
-  role         Role     @default(ADMIN)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id             String   @id @default(cuid())
+  email          String   @unique
+  passwordHash   String
+  name           String?
+  role           Role     @default(ADMIN)
+  /// Bumped on password change so every previously issued session is rejected.
+  sessionVersion Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   @@map("users")
+}
+
+model Skill {
+  id          String   @id @default(cuid())
+  name        String
+  category    String
+  level       Int      @default(80)
+  description String?  @db.Text
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([category])
+  @@map("skills")
+}
+
+/// Editable copy for one block of the site, keyed by section id. `data` is
+/// validated against that section's fields in src/lib/sections/registry.ts;
+/// a missing row means the section shows its built-in defaults.
+model SiteSection {
+  key       String   @id
+  data      Json
+  updatedAt DateTime @updatedAt
+
+  @@map("site_sections")
+}
+
+/// Daily page-view rollup — one row per (UTC day, path). `visitors` counts
+/// views that opened a new browser session.
+model PageViewDaily {
+  day      DateTime @db.Date
+  path     String
+  views    Int      @default(0)
+  visitors Int      @default(0)
+
+  @@id([day, path])
+  @@index([path])
+  @@map("page_views_daily")
 }

@@ -1,20 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getPublications, getPublicationBySlug } from "@/lib/data/publications";
+import { getPublicationBySlug } from "@/lib/data/publications";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { publicationJsonLd } from "@/lib/seo/jsonld";
 import { CitationActions } from "@/components/publications/CitationActions";
 import { Badge } from "@/components/ui/Badge";
 import { formatDate } from "@/lib/utils/format";
-
-export const revalidate = 3600;
-
-export async function generateStaticParams() {
-  const publications = await getPublications();
-  return publications.map((p) => ({ slug: p.slug }));
-}
 
 export async function generateMetadata({
   params,

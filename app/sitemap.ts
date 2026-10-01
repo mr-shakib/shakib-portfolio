@@ -3,6 +3,8 @@ import { siteConfig } from "@/config/site";
 import { getProjects } from "@/lib/data/projects";
 import { getPublications } from "@/lib/data/publications";
 
+export const dynamic = "force-dynamic";
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = siteConfig.url;
   const now = new Date();

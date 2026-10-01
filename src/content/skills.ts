@@ -2,51 +2,125 @@ import type { SkillDTO } from "@/lib/validations/content";
 
 /** Powers both the 3D skills graph and its accessible HTML fallback. */
 export const skillsContent: SkillDTO[] = [
-  // Programming
-  { name: "Python", category: "Programming", level: 92, description: "Primary language for ML & research." },
-  { name: "TypeScript", category: "Programming", level: 90, description: "Type-safe full-stack development." },
-  { name: "JavaScript", category: "Programming", level: 88 },
-  { name: "C++", category: "Programming", level: 80, description: "Competitive programming & systems." },
-  { name: "SQL", category: "Programming", level: 82 },
+  // Mobile & cross-platform
+  {
+    name: "Flutter & Dart",
+    category: "Mobile",
+    level: 92,
+    description:
+      "Production cross-platform apps: state management, API integration, deep linking, real-time communication, notifications and deployment.",
+  },
+  {
+    name: "Firebase",
+    category: "Mobile",
+    level: 85,
+    description:
+      "Authentication, Firestore, Cloud Storage, Cloud Messaging, hosting, security rules and FlutterFire integration.",
+  },
+  {
+    name: "Mobile Architecture",
+    category: "Mobile",
+    level: 84,
+    description:
+      "Feature-based architecture, repository patterns, offline-first workflows, dependency injection and reusable components.",
+  },
 
-  // Frontend
-  { name: "React", category: "Frontend", level: 90 },
-  { name: "Next.js", category: "Frontend", level: 88, description: "App Router, RSC, SSR/ISR." },
-  { name: "Tailwind CSS", category: "Frontend", level: 88 },
-  { name: "Three.js", category: "Frontend", level: 72, description: "WebGL & interactive 3D." },
-  { name: "GSAP", category: "Frontend", level: 78 },
+  // AI & machine learning
+  {
+    name: "Python",
+    category: "AI/ML",
+    level: 92,
+    description:
+      "ML experimentation, backend development, data processing, automation, evaluation pipelines and research implementation.",
+  },
+  {
+    name: "Machine Learning",
+    category: "AI/ML",
+    level: 84,
+    description:
+      "Supervised & unsupervised learning, feature engineering, model evaluation, experiment design and reproducible workflows.",
+  },
+  {
+    name: "Computer Vision",
+    category: "AI/ML",
+    level: 84,
+    description:
+      "Image classification, object detection, transfer learning, YOLO, dataset preparation and real-time vision systems.",
+  },
+  {
+    name: "NLP & RAG",
+    category: "AI/ML",
+    level: 82,
+    description:
+      "Document processing, embedding-based retrieval, vector databases, grounded generation, citation pipelines and conversational AI.",
+  },
+  {
+    name: "Trustworthy Multimodal AI",
+    category: "AI/ML",
+    level: 76,
+    description:
+      "Research focus: reliability under missing, conflicting, noisy and distribution-shifted evidence — particularly for biomedical applications.",
+  },
 
-  // Backend
-  { name: "Node.js", category: "Backend", level: 84 },
-  { name: "Express", category: "Backend", level: 80 },
-  { name: "FastAPI", category: "Backend", level: 78 },
-  { name: "Prisma", category: "Backend", level: 82 },
-  { name: "PostgreSQL", category: "Backend", level: 80 },
+  // Web & backend engineering
+  {
+    name: "FastAPI",
+    category: "Web & Backend",
+    level: 82,
+    description:
+      "REST APIs, validation, authentication, asynchronous services, database integration and AI-model serving.",
+  },
+  {
+    name: "Next.js & TypeScript",
+    category: "Web & Backend",
+    level: 82,
+    description:
+      "Server & client components, typed interfaces, API routes, dashboards and production deployment.",
+  },
+  {
+    name: "Databases",
+    category: "Web & Backend",
+    level: 82,
+    description:
+      "PostgreSQL, MySQL, SQLite, Firestore, Hive, ChromaDB — modelling, migrations, indexing and query design.",
+  },
+  {
+    name: "Real-Time Systems",
+    category: "Web & Backend",
+    level: 80,
+    description:
+      "WebSockets, Socket.IO, live data synchronization, reconnection handling and polling fallbacks.",
+  },
 
-  // AI/ML
-  { name: "PyTorch", category: "AI/ML", level: 82 },
-  { name: "TensorFlow", category: "AI/ML", level: 76 },
-  { name: "scikit-learn", category: "AI/ML", level: 85 },
-  { name: "OpenCV", category: "AI/ML", level: 80, description: "Computer vision pipelines." },
-  { name: "Pandas / NumPy", category: "AI/ML", level: 88 },
-
-  // Research
-  { name: "Experiment Design", category: "Research", level: 80 },
-  { name: "Dataset Curation", category: "Research", level: 85 },
-  { name: "Technical Writing", category: "Research", level: 82 },
-  { name: "Statistical Analysis", category: "Research", level: 78 },
-
-  // Cloud
-  { name: "Vercel", category: "Cloud", level: 85 },
-  { name: "Docker", category: "Cloud", level: 74 },
-  { name: "Git / CI", category: "Cloud", level: 86 },
+  // Tools & platforms
+  {
+    name: "Git & GitHub",
+    category: "Tools & Platforms",
+    level: 90,
+    description:
+      "Branching, pull requests, code review, issue tracking and collaborative development.",
+  },
+  {
+    name: "Docker",
+    category: "Tools & Platforms",
+    level: 80,
+    description:
+      "Containerized development environments, service configuration and reproducible setups.",
+  },
+  {
+    name: "Cloud Deployment",
+    category: "Tools & Platforms",
+    level: 80,
+    description:
+      "Vercel, Railway, Render, Firebase — environment configuration, logging and basic CI/CD workflows.",
+  },
+  {
+    name: "Research Tools",
+    category: "Tools & Platforms",
+    level: 82,
+    description:
+      "Pandas, NumPy, Scikit-learn, PyTorch, Ultralytics YOLO, Matplotlib, Jupyter and Google Colab.",
+  },
 ];
 
-export const skillCategories = [
-  "Programming",
-  "Frontend",
-  "Backend",
-  "AI/ML",
-  "Research",
-  "Cloud",
-] as const;
+export const skillCategories = ["Mobile", "AI/ML", "Web & Backend", "Tools & Platforms"] as const;

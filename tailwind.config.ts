@@ -1,7 +1,6 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  darkMode: "class",
   content: [
     "./app/**/*.{ts,tsx,mdx}",
     "./src/**/*.{ts,tsx,mdx}",
@@ -17,6 +16,20 @@ const config: Config = {
         accent: {
           DEFAULT: "var(--color-accent)",
           soft: "var(--color-accent-soft)",
+          // Dark-olive accent for text on cream surfaces (volt fails contrast).
+          ink: "rgb(92 110 17 / <alpha-value>)",
+        },
+        // Light-surface palette — rgb triplets so `/opacity` modifiers work;
+        // keep in sync with the vars in globals.css.
+        ink: "rgb(22 23 15 / <alpha-value>)",
+        // rgb twin of --color-accent: var()-based colors can't take `/opacity`
+        // modifiers, so tints of the accent (admin UI) use this instead.
+        volt: "rgb(198 241 53 / <alpha-value>)",
+        cream: {
+          DEFAULT: "rgb(231 226 212 / <alpha-value>)",
+          raised: "rgb(243 240 230 / <alpha-value>)",
+          deep: "rgb(221 216 198 / <alpha-value>)",
+          soft: "rgb(225 221 206 / <alpha-value>)",
         },
         success: "var(--color-success)",
         warning: "var(--color-warning)",
