@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { motion, useInView } from "framer-motion";
 import { navLinks, siteConfig } from "@/config/site";
 import type { SectionContent } from "@/lib/sections/registry";
 import { stripEmphasis } from "@/components/shared/Emphasis";
@@ -37,24 +37,25 @@ function LocalTime() {
   return <span className="tabular-nums">{time ?? "--:--"} GMT+6</span>;
 }
 
-/** One word of the statement, rising out of its own mask. */
+/** One word of the statement, rising out of its own mask once `show` is set. */
 function StatementWord({
   children,
   serif,
   delay,
   reduced,
+  show,
 }: {
   children: string;
   serif?: boolean;
   delay: number;
   reduced: boolean;
+  show: boolean;
 }) {
   return (
     <span className="inline-block overflow-hidden align-bottom">
       <motion.span
         initial={reduced ? false : { y: "115%" }}
-        whileInView={reduced ? undefined : { y: "0%" }}
-        viewport={{ once: true, margin: "-10%" }}
+        animate={reduced || !show ? undefined : { y: "0%" }}
         transition={{ duration: 1, delay, ease: EASE }}
         className={cn(
           "inline-block",
@@ -98,6 +99,10 @@ export function Footer({
 }) {
   const year = new Date().getFullYear();
   const reduced = useReducedMotion();
+  // Observe the heading: each word starts clipped by its own mask, so an
+  // observer on the words themselves would never fire.
+  const statementRef = useRef<HTMLHeadingElement>(null);
+  const statementInView = useInView(statementRef, { once: true, margin: "-10%" });
 
   const scrollTop = () => {
     scrollToId("hero");
@@ -142,6 +147,7 @@ export function Footer({
           </motion.span>
 
           <h2
+            ref={statementRef}
             aria-label={stripEmphasis(content.statement)}
             className="relative text-[clamp(2.25rem,6.5vw,5rem)] leading-[0.98]"
           >
@@ -149,7 +155,12 @@ export function Footer({
               {statementWords(content.statement).map((word, i) => (
                 <span key={i}>
                   {word.spaced && " "}
-                  <StatementWord serif={word.serif} delay={0.05 + i * 0.1} reduced={reduced}>
+                  <StatementWord
+                    serif={word.serif}
+                    delay={0.05 + i * 0.1}
+                    reduced={reduced}
+                    show={statementInView}
+                  >
                     {word.text}
                   </StatementWord>
                 </span>

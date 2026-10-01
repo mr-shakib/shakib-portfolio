@@ -1,6 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useInView } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
@@ -24,6 +25,9 @@ interface SplitHeadingProps {
 /**
  * Giant display heading where every character rises out of its own clip mask,
  * staggered across the line — triggered when the heading scrolls into view.
+ *
+ * Visibility is observed on the heading, not on each character: a character
+ * starts fully clipped by its own mask, so an observer on it never fires.
  */
 export function SplitHeading({
   lines,
@@ -34,6 +38,8 @@ export function SplitHeading({
   delay = 0,
 }: SplitHeadingProps) {
   const reduced = useReducedMotion();
+  const ref = useRef<HTMLHeadingElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-12%" });
   const label = lines.map((l) => l.text).join(" ");
 
   if (reduced) {
@@ -59,7 +65,7 @@ export function SplitHeading({
   let charIndex = 0;
 
   return (
-    <Tag className={cn("font-display uppercase", className)} aria-label={label}>
+    <Tag ref={ref} className={cn("font-display uppercase", className)} aria-label={label}>
       {lines.map((line) => {
         const words = line.text.split(" ");
         return (
@@ -82,8 +88,7 @@ export function SplitHeading({
                       <motion.span
                         className="inline-block will-change-transform"
                         initial={{ y: "112%" }}
-                        whileInView={{ y: "0%" }}
-                        viewport={{ once: true, margin: "-12%" }}
+                        animate={inView ? { y: "0%" } : undefined}
                         transition={{
                           duration: 0.9,
                           delay: delay + i * charStagger,
