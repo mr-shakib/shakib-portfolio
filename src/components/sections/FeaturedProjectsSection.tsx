@@ -67,17 +67,17 @@ export function FeaturedProjectsSection({ projects }: { projects: ProjectDTO[] }
       {useHorizontal ? (
         <div ref={root} className="mt-12">
           <div ref={track} className="flex gap-6 pl-gutter pr-gutter will-change-transform">
-            {projects.map((project) => (
+            {projects.map((project, i) => (
               <div key={project.id} className="w-[min(80vw,380px)] shrink-0">
-                <ProjectCard project={project} className="h-full" />
+                <ProjectCard project={project} index={i} className="h-full" />
               </div>
             ))}
           </div>
         </div>
       ) : (
         <div className="container-content mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => (
-            <ProjectCard key={project.id} project={project} />
+          {projects.map((project, i) => (
+            <ProjectCard key={project.id} project={project} index={i} />
           ))}
         </div>
       )}

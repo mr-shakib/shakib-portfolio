@@ -9,8 +9,17 @@ export interface SplitLine {
   text: string;
   /** Render this line as outlined (stroked) type. */
   outline?: boolean;
+  /** Render this line in the accent serif, optically matched to Anton's caps. */
+  serif?: boolean;
   className?: string;
 }
+
+/**
+ * Instrument Serif's capitals are ~1.18× shorter than Anton's at the same
+ * size (measured), so serif lines scale up to share one cap height.
+ */
+// Always the brand volt — on light surfaces too, where other accent text turns black.
+const SERIF_LINE = "font-serif text-[1.18em] leading-[0.95] tracking-[0.01em] text-volt";
 
 interface SplitHeadingProps {
   lines: SplitLine[];
@@ -55,7 +64,7 @@ export function SplitHeading({
               line.className,
             )}
           >
-            {line.text}
+            {line.serif ? <span className={SERIF_LINE}>{line.text}</span> : line.text}
           </span>
         ))}
       </Tag>
@@ -79,30 +88,32 @@ export function SplitHeading({
               line.className,
             )}
           >
-            {words.map((word, wi) => (
-              <span key={`${word}-${wi}`} className="inline-block whitespace-nowrap">
-                {word.split("").map((char, ci) => {
-                  const i = charIndex++;
-                  return (
-                    <span key={ci} className="inline-block overflow-hidden align-bottom">
-                      <motion.span
-                        className="inline-block will-change-transform"
-                        initial={{ y: "112%" }}
-                        animate={inView ? { y: "0%" } : undefined}
-                        transition={{
-                          duration: 0.9,
-                          delay: delay + i * charStagger,
-                          ease: [0.16, 1, 0.3, 1],
-                        }}
-                      >
-                        {char}
-                      </motion.span>
-                    </span>
-                  );
-                })}
-                {wi < words.length - 1 ? " " : ""}
-              </span>
-            ))}
+            <span className={line.serif ? SERIF_LINE : undefined}>
+              {words.map((word, wi) => (
+                <span key={`${word}-${wi}`} className="inline-block whitespace-nowrap">
+                  {word.split("").map((char, ci) => {
+                    const i = charIndex++;
+                    return (
+                      <span key={ci} className="inline-block overflow-hidden align-bottom">
+                        <motion.span
+                          className="inline-block will-change-transform"
+                          initial={{ y: "112%" }}
+                          animate={inView ? { y: "0%" } : undefined}
+                          transition={{
+                            duration: 0.9,
+                            delay: delay + i * charStagger,
+                            ease: [0.16, 1, 0.3, 1],
+                          }}
+                        >
+                          {char}
+                        </motion.span>
+                      </span>
+                    );
+                  })}
+                  {wi < words.length - 1 ? " " : ""}
+                </span>
+              ))}
+            </span>
           </span>
         );
       })}

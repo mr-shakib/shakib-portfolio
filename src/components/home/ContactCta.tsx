@@ -45,7 +45,7 @@ export function ContactCta({
             charStagger={0.04}
             lines={[
               { text: content.headingTop, className: "text-foreground" },
-              { text: content.headingBottom, outline: true },
+              { text: content.headingBottom, serif: true },
             ]}
             lineClassName="text-display-2xl leading-[0.88]"
           />

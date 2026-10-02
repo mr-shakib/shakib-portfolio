@@ -6,6 +6,7 @@ export const researchStatement =
 
 /** Sidebar metadata block — academic profile facts. */
 export const researchMeta: { label: string; value: string }[] = [
+  { label: "Position", value: "Research Assistant · ICSETEP RDG, DIU" },
   { label: "Field", value: "Multimodal AI · Machine Learning" },
   { label: "Domains", value: "Healthcare · Accessibility · Agriculture" },
   { label: "Status", value: "Seeking advanced research opportunities" },
@@ -81,13 +82,22 @@ export const researchEntriesContent: ResearchEntryDTO[] = [
     order: 2,
   },
   {
+    id: "current-icsetep-counterfeit-medicine",
+    type: "CURRENT",
+    title: "AI & Post-Quantum Cryptography for Counterfeit Medicine Identification",
+    body: "Research Assistant under the ICSETEP Research and Development Grant (RDG) at Daffodil International University, on the sub-project “Development and Effective Application of AI-Based, Post-Quantum Cryptography-Enabled Counterfeit Medicine Identification Tools for Better Treatment Outcomes in Bangladesh” — funded by the Asian Development Bank (ADB) and the Government of Bangladesh.",
+    links: null,
+    icon: "shield",
+    order: 1,
+  },
+  {
     id: "current-multimodal-reliability",
     type: "CURRENT",
     title: "Reliability Under Clinical Missingness & Shift",
     body: "Working toward advanced research in reliable multimodal machine learning — clinical-context missingness, uncertainty quantification, selective prediction and cross-hospital distribution shift.",
     links: null,
     icon: "microscope",
-    order: 1,
+    order: 2,
   },
   {
     id: "past-asl",

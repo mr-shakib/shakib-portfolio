@@ -9,7 +9,7 @@ import "@/styles/globals.css";
 export const metadata: Metadata = baseMetadata;
 
 export const viewport: Viewport = {
-  themeColor: "#0a0a0a",
+  themeColor: "#16170f",
   width: "device-width",
   initialScale: 1,
   colorScheme: "dark",

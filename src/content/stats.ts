@@ -50,6 +50,12 @@ export const aboutTimeline = [
     body: "From a production Flutter internship at Techjays — recognized for ownership and contribution — to professional engineering at Flexloop, shipping Flutter features, API integrations and AI-assisted functionality.",
   },
   {
+    stage: "2026 — Present",
+    role: "Research Assistant",
+    title: "Research Assistant, ICSETEP RDG at DIU",
+    body: "Appointed under the ICSETEP Research and Development Grant to build AI-based, post-quantum-cryptography-enabled tools that identify counterfeit medicine in Bangladesh — funded by the Asian Development Bank and the Government of Bangladesh.",
+  },
+  {
     stage: "Next",
     role: "Future Academic",
     title: "Trustworthy Multimodal AI Research",

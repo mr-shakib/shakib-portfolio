@@ -18,7 +18,7 @@ export const projectsContent: ProjectDTO[] = [
     tags: ["EdTech", "Full-Stack", "Analytics", "RBAC"],
     githubUrl: "https://github.com/mr-shakib/obelytics",
     demoUrl: "https://obelytics.vercel.app",
-    coverImage: null,
+    coverImage: "/images/projects/obelytics.webp",
     screenshots: [],
     features: [
       "Programme- and course-outcome management with curriculum mapping",
@@ -74,7 +74,7 @@ export const projectsContent: ProjectDTO[] = [
     tags: ["Real-time", "Geospatial", "Dashboard"],
     githubUrl: "https://github.com/mr-shakib/geoinsight",
     demoUrl: "https://geoinsight-smoky.vercel.app",
-    coverImage: null,
+    coverImage: "/images/projects/geoinsight.webp",
     screenshots: [],
     features: [
       "Live position updates for 100+ vehicles over WebSockets",
@@ -130,7 +130,7 @@ export const projectsContent: ProjectDTO[] = [
     tags: ["FinTech", "AI Copilot", "Mobile"],
     githubUrl: "https://github.com/mr-shakib/Perfin",
     demoUrl: null,
-    coverImage: null,
+    coverImage: "/images/projects/perfin.webp",
     screenshots: [],
     features: [
       "Income, expense, budget and savings-goal tracking",

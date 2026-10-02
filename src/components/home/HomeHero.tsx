@@ -5,6 +5,7 @@ import {
   AnimatePresence,
   motion,
   useMotionValue,
+  useMotionValueEvent,
   useScroll,
   useSpring,
   useTransform,
@@ -14,68 +15,19 @@ import { useUIStore } from "@/store/useUIStore";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { scrollToId } from "@/lib/animations/lenis";
 import type { SectionContent } from "@/lib/sections/registry";
+import { PortraitReveal } from "@/components/shared/PortraitReveal";
+import { TrailSmear } from "@/components/shared/TrailSmear";
+import { createLiquidTrail, type LiquidTrail } from "@/lib/animations/liquidTrail";
+import { cn } from "@/lib/utils/cn";
 
 const EASE = [0.16, 1, 0.3, 1] as const;
-const INK = "var(--color-ink)";
+const VOLT = "#c6f135";
+const INK = "#16170f";
 
-// ── Constellation graph (viewBox 1200×620) — the "AI/research" backdrop ──
-const NODES = [
-  { x: 120, y: 150 },
-  { x: 320, y: 90 },
-  { x: 520, y: 210 },
-  { x: 700, y: 110 },
-  { x: 890, y: 230 },
-  { x: 1080, y: 140 },
-  { x: 210, y: 380 },
-  { x: 430, y: 470 },
-  { x: 650, y: 390 },
-  { x: 860, y: 490 },
-  { x: 1050, y: 380 },
-];
-const EDGES: [number, number][] = [
-  [0, 1], [1, 2], [2, 3], [3, 4], [4, 5],
-  [0, 6], [6, 7], [7, 8], [8, 9], [9, 10],
-  [2, 7], [3, 8], [4, 9], [1, 6], [5, 10],
-];
-const ACCENT_NODES = new Set([2, 4, 8]);
-
-/** Giant display word whose characters rise out of individual masks on load. */
-function HeroWord({
-  text,
-  outline,
-  animate,
-  reduced,
-  baseDelay,
-  className,
-}: {
-  text: string;
-  outline?: boolean;
-  animate: boolean;
-  reduced: boolean;
-  baseDelay: number;
-  className?: string;
-}) {
-  return (
-    <span
-      className={`block font-display uppercase leading-[0.82] ${className ?? ""}`}
-      style={outline ? { WebkitTextStroke: `2px ${INK}`, color: "transparent" } : { color: INK }}
-      aria-hidden
-    >
-      {text.split("").map((char, i) => (
-        <span key={i} className="inline-block overflow-hidden align-bottom">
-          <motion.span
-            className="inline-block will-change-transform transition-colors duration-300 hover:text-accent-ink"
-            initial={reduced ? false : { y: "115%", rotate: 8 }}
-            animate={animate || reduced ? { y: "0%", rotate: 0 } : {}}
-            transition={{ duration: 1, delay: baseDelay + i * 0.05, ease: EASE }}
-          >
-            {char}
-          </motion.span>
-        </span>
-      ))}
-    </span>
-  );
-}
+/** Pointer offset (-0.5…0.5) → pixels of travel. */
+const travel = (px: number) => (v: number) => v * px;
+/** Map progress `v` from [a, b] to 0…1, clamped. */
+const span = (v: number, a: number, b: number) => Math.min(1, Math.max(0, (v - a) / (b - a)));
 
 /** Vertically-rolling role swapper. */
 function RoleRotator({ roles, reduced }: { roles: string[]; reduced: boolean }) {
@@ -86,16 +38,14 @@ function RoleRotator({ roles, reduced }: { roles: string[]; reduced: boolean }) 
     return () => window.clearInterval(id);
   }, [reduced, roles.length]);
 
-  if (reduced || roles.length < 2) {
-    return <span className="text-accent-ink">{roles[0]}</span>;
-  }
+  if (reduced || roles.length < 2) return <span>{roles[0]}</span>;
 
   return (
     <span className="relative inline-grid overflow-hidden align-bottom">
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.span
           key={i}
-          className="col-start-1 row-start-1 whitespace-nowrap text-accent-ink"
+          className="col-start-1 row-start-1 whitespace-nowrap"
           initial={{ y: "110%", opacity: 0 }}
           animate={{ y: "0%", opacity: 1 }}
           exit={{ y: "-110%", opacity: 0 }}
@@ -108,356 +58,379 @@ function RoleRotator({ roles, reduced }: { roles: string[]; reduced: boolean }) 
   );
 }
 
-/** Floating stat pill that bobs and parallaxes. */
-function StatChip({
-  label,
-  sub,
-  className,
-  delay,
-  floatDelay,
-  animate,
-  reduced,
-  px,
-  py,
-}: {
-  label: string;
-  sub: string;
-  className?: string;
-  delay: number;
-  floatDelay: number;
-  animate: boolean;
-  reduced: boolean;
-  px: MotionValue<number>;
-  py: MotionValue<number>;
-}) {
-  return (
-    <motion.div
-      className={`pointer-events-none absolute z-30 hidden md:block ${className ?? ""}`}
-      style={reduced ? undefined : { x: px, y: py }}
-      initial={reduced ? false : { opacity: 0, scale: 0.8, y: 20 }}
-      animate={animate || reduced ? { opacity: 1, scale: 1, y: 0 } : {}}
-      transition={{ duration: 0.7, delay, ease: EASE }}
-    >
-      <div
-        className="animate-float-y rounded-2xl border border-ink/15 bg-cream-raised/55 px-4 py-3 shadow-[0_8px_30px_rgba(22,23,15,0.06)] backdrop-blur-sm"
-        style={{ animationDelay: `${floatDelay}s` }}
-      >
-        <p className="flex items-center gap-2 font-grotesk text-[11px] font-bold uppercase tracking-[0.12em] text-ink">
-          <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-          {label}
-        </p>
-        <p className="mt-0.5 pl-3.5 font-grotesk text-[10px] uppercase tracking-[0.16em] text-ink/60">
-          {sub}
-        </p>
-      </div>
-    </motion.div>
+/** Split text into `n` lines of roughly equal word count (quote marks dropped). */
+function toLines(text: string, n: number) {
+  const words = text.replace(/[“”"]/g, "").trim().split(/\s+/);
+  const per = Math.ceil(words.length / n);
+  return Array.from({ length: n }, (_, i) => words.slice(i * per, (i + 1) * per).join(" ")).filter(
+    Boolean,
   );
 }
 
-// Fixed slots for up to three chips: position, entrance timing, parallax side.
-const CHIP_SLOTS = [
-  { className: "left-[6%] top-[26%]", delay: 1.5, floatDelay: 0, side: "left" },
-  { className: "right-[7%] top-[30%]", delay: 1.65, floatDelay: 1, side: "right" },
-  { className: "left-[9%] bottom-[20%]", delay: 1.8, floatDelay: 1.8, side: "left" },
-] as const;
-
-/** Splits on × so the multiplication sign keeps its darker ink. */
-function Subtitle({ text }: { text: string }) {
-  const parts = text.split("×");
+/** One giant line of the note sliding sideways behind the card. */
+function SlidingLine({
+  text,
+  serif,
+  x,
+  opacity,
+}: {
+  text: string;
+  serif?: boolean;
+  x: MotionValue<string>;
+  opacity: MotionValue<number>;
+}) {
   return (
-    <>
-      {parts.map((part, i) => (
-        <span key={i}>
-          {i > 0 && <span className="text-ink">×</span>}
-          {part}
-        </span>
-      ))}
-    </>
+    <motion.p
+      aria-hidden
+      style={{ x, opacity }}
+      className={cn(
+        "whitespace-nowrap uppercase",
+        serif
+          ? "font-serif text-[1.18em] leading-[0.95] text-volt"
+          : "font-display leading-[0.92] text-[#f5f5f3]",
+      )}
+    >
+      {text}
+    </motion.p>
   );
 }
 
 /**
- * Image-free, animation-heavy landing. The name is the hero: giant kinetic
- * type over a self-drawing neural-constellation graphic, drifting topographic
- * field, morphing blobs and counter-rotating rings. A role-rotator cycles
- * underneath, stat chips float, and every layer responds to the cursor with
- * spring-smoothed parallax before the whole scene peels away on scroll.
+ * Opening poster with a pinned scroll sequence, after Lando Norris's.
+ *
+ * At rest: a white panel in a volt frame holding one huge portrait with the
+ * liquid hover reveal (the name lives in the header), plus a "now" card and
+ * the rotating role in the corners.
+ *
+ * On scroll the stage pins and the panel recedes into a card with a slight 3D
+ * tilt while the frame darkens to ink; the note's quote slides past in giant
+ * mixed type behind it, its label appears above, and the signature draws
+ * itself across the card. Then the pin releases. Reduced motion keeps the
+ * static poster (the note then plays in its own section instead).
  */
-export function HomeHero({ content }: { content: SectionContent<"hero"> }) {
+export function HomeHero({
+  content,
+  note,
+}: {
+  content: SectionContent<"hero">;
+  note: SectionContent<"about">;
+}) {
   const loaderComplete = useUIStore((s) => s.loaderComplete);
   const reduced = useReducedMotion();
   const animate = loaderComplete && !reduced;
-  const ref = useRef<HTMLElement>(null);
+  const sequence = !reduced;
 
-  // ── Mouse parallax ────────────────────────────────────────────────────
+  const sectionRef = useRef<HTMLElement>(null);
+  const stageRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // ── Liquid trail over the whole panel ───────────────────────────────
+  const [trail, setTrail] = useState<LiquidTrail | null>(null);
+  useEffect(() => {
+    if (reduced || !panelRef.current) return;
+    const t = createLiquidTrail(panelRef.current);
+    setTrail(t);
+    return () => {
+      t.destroy();
+      setTrail(null);
+    };
+  }, [reduced]);
+
+  // ── Mouse parallax (subtle — the portrait is the whole stage) ─────────
   const mx = useMotionValue(0);
-  const my = useMotionValue(0);
   const smx = useSpring(mx, { stiffness: 110, damping: 18, mass: 0.4 });
-  const smy = useSpring(my, { stiffness: 110, damping: 18, mass: 0.4 });
-
-  const nameTopX = useTransform(smx, (v) => v * -45);
-  const nameBottomX = useTransform(smx, (v) => v * 45);
-  const nameY = useTransform(smy, (v) => v * 18);
-  const constX = useTransform(smx, (v) => v * 70);
-  const constY = useTransform(smy, (v) => v * 70);
-  const blobX = useTransform(smx, (v) => v * 60);
-  const blobY = useTransform(smy, (v) => v * 60);
-  const chipLX = useTransform(smx, (v) => v * -28);
-  const chipLY = useTransform(smy, (v) => v * -28);
-  const chipRX = useTransform(smx, (v) => v * 28);
-  const chipRY = useTransform(smy, (v) => v * 28);
-
+  const portraitX = useTransform(smx, travel(16));
   const handleMouse = (e: React.MouseEvent) => {
     if (reduced) return;
-    const r = ref.current?.getBoundingClientRect();
+    const r = sectionRef.current?.getBoundingClientRect();
     if (!r) return;
     mx.set((e.clientX - r.left) / r.width - 0.5);
-    my.set((e.clientY - r.top) / r.height - 0.5);
-  };
-  const resetMouse = () => {
-    mx.set(0);
-    my.set(0);
   };
 
-  // ── Scroll exit ───────────────────────────────────────────────────────
-  const { scrollYProgress } = useScroll({
-    target: ref,
-    offset: ["start start", "end start"],
+  // ── The card the panel recedes into, sized from the viewport ─────────
+  const geometry = useRef({ scale: 0.45, cardHalfH: 180, cardW: 600, centerY: 400, sigW: 720 });
+  const [layout, setLayout] = useState(geometry.current);
+  useEffect(() => {
+    const update = () => {
+      const panel = panelRef.current;
+      if (!panel) return;
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const target = Math.min(640, vw * (vw < 768 ? 0.55 : 0.44));
+      const scale = Math.min(0.85, Math.max(0.34, target / panel.offsetWidth));
+      // The frame scales about the stage centre; the panel sits 20px above it.
+      const g = {
+        scale,
+        cardHalfH: (panel.offsetHeight * scale) / 2,
+        cardW: panel.offsetWidth * scale,
+        centerY: vh / 2 - 20 * scale,
+        // The signature overhangs the card, but never the viewport.
+        sigW: Math.min(panel.offsetWidth * scale * 1.25, vw * 0.92),
+      };
+      geometry.current = g;
+      setLayout(g);
+    };
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+
+  // ── Scroll sequence (progress 0 → 1 across the pinned distance) ───────
+  const { scrollYProgress: p } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end end"],
   });
-  const nameTopScrollX = useTransform(scrollYProgress, [0, 1], ["0%", "-24%"]);
-  const nameBottomScrollX = useTransform(scrollYProgress, [0, 1], ["0%", "24%"]);
-  const centerScale = useTransform(scrollYProgress, [0, 1], [1, 0.86]);
-  const centerOpacity = useTransform(scrollYProgress, [0, 0.85], [1, 0]);
-  const furnitureOpacity = useTransform(scrollYProgress, [0, 0.4], [1, 0]);
-  const fieldY = useTransform(scrollYProgress, [0, 1], ["0%", "-12%"]);
+  const frameScale = useTransform(
+    p,
+    (v) => 1 - (1 - geometry.current.scale) * easeInOut(span(v, 0, 0.45)),
+  );
+  const frameTilt = useTransform(p, [0, 0.22, 0.45], [0, 9, 0]);
+  const stageBg = useTransform(p, [0.02, 0.24], [VOLT, INK]);
+  const furniture = useTransform(p, [0, 0.1], [1, 0]);
+  const portraitZoom = useTransform(p, [0, 0.7], [1, 1.1]);
+  const linesOpacity = useTransform(p, [0.12, 0.3], [0, 1]);
+  const lineX0 = useTransform(p, [0.1, 1], ["14vw", "-36vw"]);
+  const lineX1 = useTransform(p, [0.1, 1], ["-40vw", "10vw"]);
+  const lineX2 = useTransform(p, [0.1, 1], ["20vw", "-30vw"]);
+  const labelOpacity = useTransform(p, [0.36, 0.46], [0, 1]);
+  const labelY = useTransform(p, [0.36, 0.46], [12, 0]);
+  const sigOpacity = useTransform(p, [0.44, 0.5], [0, 1]);
+  const sigClip = useTransform(
+    p,
+    (v) => `inset(-10% ${(100 * (1 - span(v, 0.46, 0.82))).toFixed(2)}% -10% 0)`,
+  );
+
+  // The header reads the stage: volt frame at rest, ink once it darkens.
+  useMotionValueEvent(p, "change", (v) => {
+    stageRef.current?.setAttribute("data-nav", v < 0.12 ? "volt" : "dark");
+  });
+
+  const name = `${content.firstName} ${content.lastName}`;
+  const card = content.card;
+  const lines = toLines(note.quote, 3);
+  const lineXs = [lineX0, lineX1, lineX2];
+  const fadeIn = (delay: number) => ({
+    initial: reduced ? false : ({ opacity: 0, y: 14 } as const),
+    animate: animate || reduced ? { opacity: 1, y: 0 } : {},
+    transition: { duration: 0.8, delay, ease: EASE },
+  });
+
+  const poster = (
+    <div className="relative">
+      <div
+        ref={panelRef}
+        data-nav="light"
+        className="relative min-h-[calc(100svh-3.5rem)] overflow-hidden rounded-[1.75rem] bg-cream md:min-h-[calc(100svh-4.5rem)] md:rounded-[2.5rem]"
+      >
+        {/* The name is the header wordmark; this keeps it the page's h1. */}
+        <h1 className="sr-only">{name}</h1>
+
+        {/* Drifting topographic lines — the only texture. */}
+        <motion.div
+          aria-hidden
+          className="bg-topo-light absolute inset-0 animate-topo-drift"
+          style={sequence ? { opacity: furniture } : undefined}
+        />
+
+        {/* The cursor's liquid trail over the background (below the portrait). */}
+        <TrailSmear trail={trail} />
+
+        {/* ── The portrait: from under the header, off the panel's foot ── */}
+        {content.portrait && (
+          <motion.div
+            className="absolute inset-x-0 bottom-0 top-[4.75rem] mx-auto w-[min(100%,34rem)] md:top-[5.25rem] md:w-[min(82%,46rem)] lg:w-[min(60%,56rem)]"
+            initial={reduced ? false : { opacity: 0, y: 70 }}
+            animate={animate || reduced ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 1.3, delay: 0.25, ease: EASE }}
+            style={
+              sequence
+                ? { x: portraitX, scale: portraitZoom, transformOrigin: "50% 30%" }
+                : undefined
+            }
+          >
+            <PortraitReveal
+              src={content.portrait}
+              revealSrc={content.portraitReveal}
+              alt={name}
+              priority
+              sizes="(max-width: 768px) 100vw, (max-width: 1024px) 46rem, 56rem"
+              hint={animate}
+              trail={trail}
+              fade="sides"
+              className="absolute inset-0"
+            />
+          </motion.div>
+        )}
+
+        {/* Role — bottom-right corner, wide screens only (it would sit on the shoulders below 1280px). */}
+        <motion.div
+          style={sequence ? { opacity: furniture } : undefined}
+          className="absolute bottom-10 right-10 z-20 hidden xl:block"
+        >
+          <motion.p
+            {...fadeIn(1.1)}
+            className="text-right font-display text-[1.9rem] uppercase leading-none text-ink"
+          >
+            {content.rolePrefix && (
+              <span className="mb-1.5 block font-grotesk text-[10px] tracking-[0.35em] text-ink/55">
+                {content.rolePrefix}
+              </span>
+            )}
+            <RoleRotator roles={content.roles} reduced={reduced} />
+          </motion.p>
+        </motion.div>
+
+        {/* "Now" card — bottom-left corner, wide screens only. */}
+        {card.title && (
+          <motion.div
+            style={sequence ? { opacity: furniture } : undefined}
+            className="absolute bottom-10 left-10 z-20 hidden xl:block"
+          >
+            <motion.div
+              {...fadeIn(1.3)}
+              className="w-60 rounded-2xl border border-ink/15 bg-cream-raised/70 p-4 backdrop-blur-sm"
+            >
+              {card.label && (
+                <p className="flex items-center gap-2 font-grotesk text-[9px] font-bold uppercase tracking-[0.3em] text-ink/60">
+                  <span className="relative flex h-1.5 w-1.5">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-volt opacity-60" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-volt ring-1 ring-ink/50" />
+                  </span>
+                  {card.label}
+                </p>
+              )}
+              <p className="mt-3 font-display text-[1.6rem] uppercase leading-none text-ink">
+                {card.title}
+              </p>
+              {card.sub && (
+                <p className="mt-2 font-grotesk text-[10px] uppercase tracking-[0.18em] text-ink/60">
+                  {card.sub}
+                </p>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </div>
+
+      {/* ── Notched tab hanging into the frame — the scroll cue ──────── */}
+      <motion.div
+        style={sequence ? { opacity: furniture } : undefined}
+        className="absolute left-1/2 top-full z-20 -mt-px h-10 w-[220px] -translate-x-1/2 md:h-11 md:w-[300px]"
+      >
+        <svg
+          aria-hidden
+          viewBox="0 0 360 44"
+          preserveAspectRatio="none"
+          className="absolute inset-0 h-full w-full text-cream"
+        >
+          <path d="M0 0 C46 0 56 44 104 44 L256 44 C304 44 314 0 360 0 Z" fill="currentColor" />
+        </svg>
+        <motion.button
+          type="button"
+          onClick={() => scrollToId("about")}
+          initial={reduced ? false : { opacity: 0 }}
+          animate={animate || reduced ? { opacity: 1 } : {}}
+          transition={{ duration: 0.8, delay: 2, ease: EASE }}
+          className="group relative flex h-full w-full items-center justify-center gap-2.5 pt-0.5 font-grotesk text-[10px] uppercase tracking-[0.3em] text-ink/70 transition-colors hover:text-ink"
+        >
+          Scroll
+          <span className="relative inline-flex h-5 w-3 items-start justify-center rounded-full border border-ink/30 pt-1 transition-colors group-hover:border-ink">
+            <span className="h-1.5 w-px animate-bounce bg-ink" />
+          </span>
+        </motion.button>
+      </motion.div>
+    </div>
+  );
+
+  // Reduced motion: the static poster in its volt frame.
+  if (!sequence) {
+    return (
+      <section
+        ref={sectionRef}
+        id="hero"
+        data-nav="volt"
+        className="relative bg-volt px-2 pb-12 pt-2 sm:px-3 sm:pt-3 md:px-4 md:pb-14 md:pt-4"
+      >
+        {poster}
+      </section>
+    );
+  }
 
   return (
     <section
-      ref={ref}
+      ref={sectionRef}
       id="hero"
       onMouseMove={handleMouse}
-      onMouseLeave={resetMouse}
-      className="relative flex min-h-svh flex-col overflow-hidden bg-cream"
+      onMouseLeave={() => mx.set(0)}
+      className="relative h-[240vh]"
     >
-      {/* ── Animated topographic field ─────────────────────────────────── */}
-      <motion.div
-        aria-hidden
-        className="bg-topo-light absolute inset-0 animate-topo-drift"
-        style={reduced ? undefined : { y: fieldY }}
-      />
+      <div
+        ref={stageRef}
+        data-nav="volt"
+        className="sticky top-0 h-svh overflow-hidden [perspective:1400px]"
+      >
+        {/* Stage colour: the volt frame darkening to ink as the card recedes. */}
+        <motion.div aria-hidden className="absolute inset-0" style={{ backgroundColor: stageBg }} />
 
-      {/* Morphing blobs */}
-      <motion.svg
-        viewBox="0 0 600 600"
-        className="absolute -right-[14%] top-[12%] w-[46vw] min-w-[300px]"
-        aria-hidden
-        style={reduced ? undefined : { x: blobX, y: blobY }}
-        initial={reduced ? false : { opacity: 0, scale: 0.8 }}
-        animate={animate || reduced ? { opacity: 1, scale: 1 } : {}}
-        transition={{ duration: 1.6, delay: 0.5, ease: EASE }}
-      >
-        <path
-          className="animate-blob origin-center"
-          d="M170 220 C240 90 460 70 530 190 C600 310 540 470 410 520 C280 570 140 520 100 400 C70 310 110 280 170 220 Z"
-          fill="var(--color-cream-deep)"
-        />
-      </motion.svg>
-      <motion.svg
-        viewBox="0 0 400 400"
-        className="absolute -left-[10%] bottom-[6%] w-[30vw] min-w-[220px]"
-        aria-hidden
-        style={reduced ? undefined : { x: blobY, y: blobX }}
-        initial={reduced ? false : { opacity: 0, scale: 0.8 }}
-        animate={animate || reduced ? { opacity: 1, scale: 1 } : {}}
-        transition={{ duration: 1.6, delay: 0.7, ease: EASE }}
-      >
-        <path
-          className="animate-blob origin-center"
-          style={{ animationDelay: "-6s" }}
-          d="M120 140 C170 70 300 60 340 140 C380 220 340 320 250 340 C170 360 90 320 80 240 C72 190 90 180 120 140 Z"
-          fill="var(--color-cream-soft)"
-        />
-      </motion.svg>
-
-      {/* ── Self-drawing neural constellation ──────────────────────────── */}
-      <motion.svg
-        viewBox="0 0 1200 620"
-        preserveAspectRatio="xMidYMid slice"
-        className="absolute left-1/2 top-1/2 z-[5] h-[60vh] w-[120vw] -translate-x-1/2 -translate-y-1/2 md:w-[88vw]"
-        aria-hidden
-        style={reduced ? undefined : { x: constX, y: constY }}
-      >
-        {EDGES.map(([a, b], i) => {
-          const na = NODES[a];
-          const nb = NODES[b];
-          if (!na || !nb) return null;
-          return (
-            <motion.line
-              key={`e-${i}`}
-              x1={na.x}
-              y1={na.y}
-              x2={nb.x}
-              y2={nb.y}
-              stroke={INK}
-              strokeOpacity={0.1}
-              strokeWidth={1.1}
-              initial={reduced ? false : { pathLength: 0, opacity: 0 }}
-              animate={animate || reduced ? { pathLength: 1, opacity: 1 } : {}}
-              transition={{ duration: 1, delay: 0.6 + i * 0.06, ease: EASE }}
+        {/* The note, in giant mixed type, sliding past behind the card (spread above/behind/below it on phones). */}
+        <div className="absolute inset-0 flex flex-col items-center justify-between pb-[7svh] pt-[10svh] md:justify-center md:gap-[1.5vw] md:py-0 text-[clamp(3.25rem,9vw,9rem)]">
+          {lines.map((line, i) => (
+            <SlidingLine
+              key={i}
+              text={line}
+              serif={i === 1}
+              x={lineXs[i]!}
+              opacity={linesOpacity}
             />
-          );
-        })}
-        {NODES.map((n, i) => {
-          const accent = ACCENT_NODES.has(i);
-          return (
-            <motion.circle
-              key={`n-${i}`}
-              cx={n.x}
-              cy={n.y}
-              r={accent ? 6 : 4}
-              fill={accent ? "var(--color-accent)" : INK}
-              fillOpacity={accent ? 1 : 0.4}
-              initial={reduced ? false : { scale: 0, opacity: 0 }}
-              animate={
-                animate
-                  ? { scale: 1, opacity: [0.4, 1, 0.4] }
-                  : reduced
-                    ? { scale: 1, opacity: 1 }
-                    : {}
-              }
-              transition={{
-                scale: { duration: 0.5, delay: 0.8 + i * 0.05, ease: EASE },
-                opacity: {
-                  duration: 2.4 + (i % 4) * 0.6,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                  delay: i * 0.2,
-                },
-              }}
-              style={{ transformBox: "fill-box", transformOrigin: "center" }}
-            />
-          );
-        })}
-      </motion.svg>
+          ))}
+        </div>
 
-      {/* Subtitle under the header monogram */}
-      <motion.p
-        initial={reduced ? false : { opacity: 0, y: -10 }}
-        animate={animate || reduced ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.8, delay: 1.2, ease: EASE }}
-        style={reduced ? undefined : { opacity: furnitureOpacity }}
-        className="relative z-30 mx-auto mt-[4.5rem] px-gutter text-center font-grotesk text-[10px] uppercase tracking-[0.4em] text-ink/60 md:mt-24"
-      >
-        <Subtitle text={content.subtitle} />
-      </motion.p>
-
-      {/* ── Center stage: giant kinetic name + role rotator ────────────── */}
-      <motion.div
-        className="relative z-20 flex flex-1 flex-col items-center justify-center px-gutter text-center"
-        style={reduced ? undefined : { scale: centerScale, opacity: centerOpacity, y: nameY }}
-      >
-        {/* Signature flourish above the name */}
-        <motion.span
-          initial={reduced ? false : { opacity: 0, clipPath: "inset(0 100% 0 0)" }}
-          animate={animate || reduced ? { opacity: 1, clipPath: "inset(0 0% 0 0)" } : {}}
-          transition={{ duration: 1.2, delay: 1.6, ease: EASE }}
-          className="mb-1 -rotate-6 font-signature text-4xl text-accent-ink md:text-5xl"
-          aria-hidden
+        {/* The poster, receding into a card with a slight 3D tilt. */}
+        <motion.div
+          className="absolute inset-0 z-10 px-2 pb-12 pt-2 sm:px-3 sm:pt-3 md:px-4 md:pb-14 md:pt-4"
+          style={{ scale: frameScale, rotateX: frameTilt, transformOrigin: "50% 50%" }}
         >
-          {content.greeting}
-        </motion.span>
+          {poster}
+        </motion.div>
 
-        <h1
-          className="font-display uppercase leading-[0.8]"
-          aria-label={`${content.firstName} ${content.lastName}`}
-        >
-          <motion.span className="block" style={reduced ? undefined : { x: nameTopScrollX }}>
-            <motion.span className="block" style={reduced ? undefined : { x: nameTopX }}>
-              <HeroWord
-                text={content.firstName}
-                animate={animate}
-                reduced={reduced}
-                baseDelay={0.15}
-                className="text-[clamp(4rem,18vw,16rem)]"
-              />
-            </motion.span>
-          </motion.span>
-          <motion.span className="block" style={reduced ? undefined : { x: nameBottomScrollX }}>
-            <motion.span className="block" style={reduced ? undefined : { x: nameBottomX }}>
-              <HeroWord
-                text={content.lastName}
-                outline
-                animate={animate}
-                reduced={reduced}
-                baseDelay={0.4}
-                className="text-[clamp(3.25rem,15vw,13.5rem)]"
-              />
-            </motion.span>
-          </motion.span>
-        </h1>
-
-        {/* Role rotator */}
+        {/* Label above the card. */}
         <motion.p
-          initial={reduced ? false : { opacity: 0, y: 18 }}
-          animate={animate || reduced ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.8, delay: 1.1, ease: EASE }}
-          className="mt-6 font-display text-2xl uppercase tracking-wide text-ink md:mt-8 md:text-4xl"
+          style={{ opacity: labelOpacity, y: labelY, top: layout.centerY - layout.cardHalfH - 44 }}
+          className="pointer-events-none absolute inset-x-0 z-20 text-center font-grotesk text-[10px] uppercase tracking-[0.35em] text-volt"
         >
-          {content.rolePrefix && <span className="text-ink/50">{content.rolePrefix} </span>}
-          <RoleRotator roles={content.roles} reduced={reduced} />
+          {note.eyebrow}
         </motion.p>
-      </motion.div>
 
-      {/* ── Floating stat chips ────────────────────────────────────────── */}
-      {content.chips.slice(0, CHIP_SLOTS.length).map((chip, i) => {
-        const slot = CHIP_SLOTS[i]!;
-        const left = slot.side === "left";
-        return (
-          <StatChip
-            key={i}
-            label={chip.label}
-            sub={chip.sub}
-            className={slot.className}
-            delay={slot.delay}
-            floatDelay={slot.floatDelay}
-            animate={animate}
-            reduced={reduced}
-            px={left ? chipLX : chipRX}
-            py={left ? chipLY : chipRY}
-          />
-        );
-      })}
-
-      {/* ── Bottom-center scroll cue ───────────────────────────────────── */}
-      <motion.button
-        type="button"
-        onClick={() => scrollToId("about")}
-        initial={reduced ? false : { opacity: 0 }}
-        animate={animate || reduced ? { opacity: 1 } : {}}
-        transition={{ duration: 0.8, delay: 2, ease: EASE }}
-        style={reduced ? undefined : { opacity: furnitureOpacity }}
-        className="group absolute bottom-16 left-1/2 z-30 flex -translate-x-1/2 items-center gap-3 font-grotesk text-[10px] uppercase tracking-[0.3em] text-ink/70 transition-colors hover:text-ink"
-      >
-        Scroll
-        <span className="relative inline-flex h-9 w-5 items-start justify-center rounded-full border border-ink/30 pt-1.5 transition-colors group-hover:border-accent-ink">
-          <span className="h-2 w-px animate-bounce bg-ink group-hover:bg-accent-ink" />
-        </span>
-      </motion.button>
-
-      {/* Notched bottom edge — the volt band below rises into the cream as a
-          center tab (same grammar as the footer's notch) so the site's one big
-          theme shift reads as designed, not stacked. */}
-      <svg
-        viewBox="0 0 1440 56"
-        preserveAspectRatio="none"
-        className="absolute inset-x-0 bottom-0 z-10 block h-12 w-full"
-        aria-hidden
-      >
-        <path
-          d="M0 56 L0 26 L572 26 C604 26 610 4 646 4 L794 4 C830 4 836 26 868 26 L1440 26 L1440 56 Z"
-          fill="var(--color-accent)"
-        />
-      </svg>
+        {/* The signature, drawing itself across the card. */}
+        <motion.div
+          aria-hidden
+          style={{
+            opacity: sigOpacity,
+            clipPath: sigClip,
+            top: layout.centerY,
+            width: layout.sigW,
+          }}
+          className="pointer-events-none absolute left-1/2 z-30 -translate-x-1/2 -translate-y-1/2 -rotate-6"
+        >
+          {note.signatureImage ? (
+            // eslint-disable-next-line @next/next/no-img-element -- plain img keeps the clip-path draw crisp
+            <img
+              src={note.signatureImage}
+              alt=""
+              className="h-auto w-full drop-shadow-[0_4px_24px_rgba(0,0,0,0.35)]"
+            />
+          ) : (
+            <span className="block text-center font-signature text-[clamp(4rem,10vw,9rem)] leading-none text-volt">
+              {note.signature}
+            </span>
+          )}
+        </motion.div>
+      </div>
     </section>
   );
+}
+
+/** Smooth in-out curve for the recede, so it starts and settles gently. */
+function easeInOut(t: number) {
+  return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
 }

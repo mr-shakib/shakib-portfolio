@@ -3,21 +3,25 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ProjectCard } from "@/components/projects/ProjectCard";
+import { categoryLabels } from "@/components/projects/ProjectCover";
 import type { ProjectDTO, ProjectCategory } from "@/lib/validations/content";
 import { cn } from "@/lib/utils/cn";
 
-const categories: { value: ProjectCategory | "ALL"; label: string }[] = [
-  { value: "ALL", label: "All" },
-  { value: "WEB", label: "Web" },
-  { value: "MOBILE", label: "Mobile" },
-  { value: "AI_ML", label: "AI / ML" },
-  { value: "RESEARCH", label: "Research" },
-  { value: "SYSTEM", label: "System" },
-];
+const ORDER: ProjectCategory[] = ["WEB", "MOBILE", "AI_ML", "RESEARCH", "SYSTEM", "OTHER"];
 
 export function ProjectsExplorer({ projects }: { projects: ProjectDTO[] }) {
   const [category, setCategory] = useState<ProjectCategory | "ALL">("ALL");
   const [query, setQuery] = useState("");
+
+  // Numbers follow the full list, so a project keeps its N° under any filter.
+  const numberOf = useMemo(() => new Map(projects.map((p, i) => [p.id, i])), [projects]);
+
+  // Only offer categories that have projects, with their counts.
+  const categories = useMemo(() => {
+    const counts = new Map<ProjectCategory, number>();
+    for (const p of projects) counts.set(p.category, (counts.get(p.category) ?? 0) + 1);
+    return ORDER.filter((c) => counts.has(c)).map((c) => ({ value: c, count: counts.get(c)! }));
+  }, [projects]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -33,24 +37,45 @@ export function ProjectsExplorer({ projects }: { projects: ProjectDTO[] }) {
     });
   }, [projects, category, query]);
 
+  // The first project runs wide; so does the last when the two-column grid
+  // would otherwise leave it alone on its row.
+  const wide = (i: number) =>
+    filtered.length > 1 &&
+    (i === 0 || (i === filtered.length - 1 && (filtered.length - 1) % 2 === 1));
+
+  const chip = (active: boolean) =>
+    cn(
+      "flex h-10 items-center gap-2 rounded-full border px-4 font-grotesk text-[11px] uppercase tracking-[0.2em] transition-colors duration-300",
+      active
+        ? "border-volt bg-volt text-ink"
+        : "border-foreground/20 text-muted hover:border-foreground/60 hover:text-foreground",
+    );
+
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div className="flex flex-wrap gap-2" role="tablist" aria-label="Filter projects by category">
+    <div className="flex flex-col gap-12 md:gap-16">
+      <div className="flex flex-col gap-4 border-y border-border py-5 md:flex-row md:items-center md:justify-between">
+        <div
+          className="flex flex-wrap gap-2"
+          role="tablist"
+          aria-label="Filter projects by category"
+        >
+          <button
+            role="tab"
+            aria-selected={category === "ALL"}
+            onClick={() => setCategory("ALL")}
+            className={chip(category === "ALL")}
+          >
+            All <sup className="text-[9px] opacity-60">{projects.length}</sup>
+          </button>
           {categories.map((c) => (
             <button
               key={c.value}
               role="tab"
               aria-selected={category === c.value}
               onClick={() => setCategory(c.value)}
-              className={cn(
-                "rounded-full border px-4 py-2 text-sm transition-colors",
-                category === c.value
-                  ? "border-accent bg-accent-soft text-accent"
-                  : "border-border text-muted hover:text-foreground",
-              )}
+              className={chip(category === c.value)}
             >
-              {c.label}
+              {categoryLabels[c.value]} <sup className="text-[9px] opacity-60">{c.count}</sup>
             </button>
           ))}
         </div>
@@ -59,27 +84,35 @@ export function ProjectsExplorer({ projects }: { projects: ProjectDTO[] }) {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search projects…"
+          placeholder="Search by name, stack or tag…"
           aria-label="Search projects"
-          className="w-full rounded-full border border-border bg-surface px-5 py-2.5 text-sm text-foreground placeholder:text-muted/60 focus:border-accent focus:outline-none md:w-64"
+          className="h-10 w-full rounded-full border border-foreground/20 bg-transparent px-5 text-sm text-foreground placeholder:text-muted/60 focus:border-accent focus:outline-none md:w-72"
         />
       </div>
 
       {filtered.length === 0 ? (
-        <p className="py-16 text-center text-muted">No projects match your filters.</p>
+        <p className="py-16 text-center font-grotesk text-xs uppercase tracking-[0.25em] text-muted">
+          No projects match — try another filter.
+        </p>
       ) : (
-        <motion.div layout className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <motion.div layout className="grid gap-x-8 gap-y-16 md:grid-cols-2 md:gap-y-20">
           <AnimatePresence mode="popLayout">
-            {filtered.map((project) => (
+            {filtered.map((project, i) => (
               <motion.div
                 key={project.id}
                 layout
-                initial={{ opacity: 0, scale: 0.96 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.96 }}
-                transition={{ duration: 0.3 }}
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.97 }}
+                transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                className={cn(wide(i) && "md:col-span-2")}
               >
-                <ProjectCard project={project} className="h-full" />
+                <ProjectCard
+                  project={project}
+                  index={numberOf.get(project.id) ?? i}
+                  feature={wide(i)}
+                  reverse={i > 0}
+                />
               </motion.div>
             ))}
           </AnimatePresence>

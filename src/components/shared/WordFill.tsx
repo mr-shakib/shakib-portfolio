@@ -5,6 +5,7 @@ import { gsap, ScrollTrigger, registerGsap } from "@/lib/animations/gsap";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { useIsomorphicLayoutEffect } from "@/hooks/useIsomorphicLayoutEffect";
 import { cn } from "@/lib/utils/cn";
+import { emphasisWords } from "@/components/shared/Emphasis";
 
 interface WordFillProps {
   text: string;
@@ -12,16 +13,24 @@ interface WordFillProps {
   /** Opacity of unread words. */
   baseOpacity?: number;
   as?: "p" | "blockquote" | "h2";
+  /** Classes for words wrapped in *asterisks* in `text`. */
+  emphasisClassName?: string;
 }
 
 /**
  * Composable reading-spotlight: words brighten one by one, scrubbed to scroll.
  * Unstyled — bring your own typography via className.
  */
-export function WordFill({ text, className, baseOpacity = 0.15, as: Tag = "p" }: WordFillProps) {
+export function WordFill({
+  text,
+  className,
+  baseOpacity = 0.15,
+  as: Tag = "p",
+  emphasisClassName,
+}: WordFillProps) {
   const root = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
-  const words = text.split(" ");
+  const words = emphasisWords(text);
 
   useIsomorphicLayoutEffect(() => {
     if (reduced || !root.current) return;
@@ -51,9 +60,9 @@ export function WordFill({ text, className, baseOpacity = 0.15, as: Tag = "p" }:
     <div ref={root}>
       <Tag className={cn(className)}>
         {words.map((word, i) => (
-          <span key={`${word}-${i}`} className="wf-word">
-            {word}
-            {i < words.length - 1 ? " " : ""}
+          <span key={i}>
+            {word.spaced && " "}
+            <span className={cn("wf-word", word.em && emphasisClassName)}>{word.text}</span>
           </span>
         ))}
       </Tag>

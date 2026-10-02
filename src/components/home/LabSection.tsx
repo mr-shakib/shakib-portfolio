@@ -8,7 +8,8 @@ import { TiltCard } from "@/components/shared/TiltCard";
 import type { SectionContent } from "@/lib/sections/registry";
 
 /**
- * "In the Lab" — the research half of the site's duality. The two heading
+ * "In the Lab" — the research half of the site's duality, set as a light
+ * (cream) chapter: paper for research, dark for engineering. The two heading
  * lines drift in opposite directions as you scroll; cards tilt toward the
  * cursor and invert to volt on hover.
  */
@@ -22,7 +23,9 @@ export function LabSection({
   return (
     <section
       id="research-areas"
-      className="overflow-hidden border-b border-border bg-transparent py-section"
+      data-theme="cream"
+      data-chapter
+      className="overflow-hidden py-section"
     >
       <div className="container-content">
         <RevealOnScroll>
@@ -39,7 +42,7 @@ export function LabSection({
           <DriftOnScroll x={-60}>
             <SplitHeading
               as="h3"
-              lines={[{ text: content.headingBottom, outline: true }]}
+              lines={[{ text: content.headingBottom, serif: true }]}
               lineClassName="text-display-xl leading-[0.88]"
               delay={0.1}
             />
@@ -53,7 +56,7 @@ export function LabSection({
           <RevealOnScroll delay={0.15}>
             <Link
               href="/research"
-              className="btn-sweep group inline-flex items-center gap-3 border border-foreground/25 px-6 py-3 font-grotesk text-[11px] uppercase tracking-[0.3em] text-foreground transition-colors duration-300 hover:border-accent hover:text-background"
+              className="btn-sweep group inline-flex items-center gap-3 border border-foreground/25 px-6 py-3 font-grotesk text-[11px] uppercase tracking-[0.3em] text-foreground transition-colors duration-300 hover:border-volt hover:text-ink [--sweep:rgb(198_241_53)]"
             >
               {content.buttonLabel}
               <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-1">
@@ -69,22 +72,22 @@ export function LabSection({
               <TiltCard>
                 <Link
                   href="/research"
-                  className="group relative flex h-full min-h-56 flex-col justify-between border-b border-r border-border p-6 transition-colors duration-300 hover:bg-accent md:p-8"
+                  className="group relative flex h-full min-h-56 flex-col justify-between border-b border-r border-border p-6 transition-colors duration-300 hover:bg-volt md:p-8"
                 >
-                  <span className="font-display text-2xl uppercase text-muted transition-colors group-hover:text-background/60">
+                  <span className="font-display text-2xl uppercase text-muted transition-colors group-hover:text-ink/60">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                   <div>
-                    <h3 className="font-display text-3xl uppercase leading-none text-foreground transition-colors group-hover:text-background md:text-4xl">
+                    <h3 className="font-display text-3xl uppercase leading-none text-foreground transition-colors group-hover:text-ink md:text-4xl">
                       {area.title}
                     </h3>
-                    <p className="mt-3 text-sm leading-relaxed text-muted transition-colors group-hover:text-background/75">
+                    <p className="mt-3 text-sm leading-relaxed text-muted transition-colors group-hover:text-ink/75">
                       {area.description}
                     </p>
                   </div>
                   <span
                     aria-hidden
-                    className="absolute right-6 top-6 text-accent opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:text-background group-hover:opacity-100"
+                    className="absolute right-6 top-6 text-accent opacity-0 transition-all duration-300 group-hover:translate-x-1 group-hover:text-ink group-hover:opacity-100"
                   >
                     ↗
                   </span>

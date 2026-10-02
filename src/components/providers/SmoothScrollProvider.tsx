@@ -30,8 +30,9 @@ export function SmoothScrollProvider({ children }: { children: React.ReactNode }
     }
 
     const lenis = new Lenis({
-      duration: 1.1,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      // Follow the wheel closely: half of each step lands in ~80ms and it
+      // settles in ~0.5s. Lower = floatier, higher = closer to native.
+      lerp: 0.14,
       smoothWheel: true,
       touchMultiplier: 1.5,
     });

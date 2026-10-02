@@ -31,15 +31,15 @@ export function WildSection({
           <DriftOnScroll x={-60}>
             <SplitHeading
               as="h2"
-              lines={[{ text: content.headingTop, outline: true }]}
-              lineClassName="text-display-xl leading-[0.88]"
+              lines={[{ text: content.headingTop }]}
+              lineClassName="text-display-xl text-foreground leading-[0.88]"
             />
           </DriftOnScroll>
           <DriftOnScroll x={60}>
             <SplitHeading
               as="h3"
-              lines={[{ text: content.headingBottom }]}
-              lineClassName="text-display-xl text-foreground leading-[0.88]"
+              lines={[{ text: content.headingBottom, serif: true }]}
+              lineClassName="text-display-xl leading-[0.88]"
               delay={0.1}
             />
           </DriftOnScroll>

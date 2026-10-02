@@ -37,6 +37,7 @@ export function MobileMenu() {
           animate={{ clipPath: "inset(0 0 0% 0)" }}
           exit={{ clipPath: "inset(0 0 100% 0)" }}
           transition={{ duration: 0.6, ease: [0.87, 0, 0.13, 1] }}
+          data-theme="dark"
           className="bg-topo-dark fixed inset-0 z-40 overflow-y-auto bg-[#23241a]"
         >
           <nav className="container-content flex min-h-full flex-col justify-center gap-1 py-24">

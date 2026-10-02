@@ -14,11 +14,21 @@ interface ParticleFieldProps {
   max?: number;
 }
 
+/** Draw at most this often — the drift is slow enough that 30fps reads as smooth. */
+const FRAME_MS = 1000 / 30;
+/** Hold still until scrolling has paused this long, leaving each scroll frame to the page. */
+const SCROLL_REST_MS = 160;
+/** Link opacity is quantized into this many steps, so each step is one stroke. */
+const LINK_STEPS = 4;
+
 /**
  * Lightweight 2D-canvas constellation field: volt particles drift, links draw
  * between nearby pairs, and the cloud eases toward the cursor for parallax.
- * DPR-aware, pauses when scrolled out of view, and renders a single static
- * frame under reduced motion. Self-contained — no global state or WebGL.
+ *
+ * Kept cheap because it runs behind every page: 30fps, batched into a handful
+ * of draw calls per frame, drawn at 1× pixel density (it's a faint, masked
+ * backdrop), paused while the page scrolls and while out of view. Reduced
+ * motion renders a single static frame. Self-contained — no global state or WebGL.
  */
 export function ParticleField({
   className,
@@ -40,7 +50,8 @@ export function ParticleField({
     let running = false;
     let w = 0;
     let h = 0;
-    let dpr = 1;
+    let lastDraw = 0;
+    let lastScroll = 0;
     const pointer = { x: 0.5, y: 0.5, tx: 0.5, ty: 0.5 };
 
     type P = { x: number; y: number; vx: number; vy: number; r: number };
@@ -59,79 +70,91 @@ export function ParticleField({
     };
 
     const resize = () => {
-      dpr = Math.min(window.devicePixelRatio || 1, 2);
       w = parent.clientWidth;
       h = parent.clientHeight;
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
+      canvas.width = w;
+      canvas.height = h;
       canvas.style.width = `${w}px`;
       canvas.style.height = `${h}px`;
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       seed();
     };
 
     const LINK = 130;
 
-    const draw = (animateMotion: boolean) => {
+    // `steps`: how many 60fps frames of motion to advance (0 = static frame).
+    const draw = (steps: number) => {
       ctx.clearRect(0, 0, w, h);
 
       // Ease pointer for smooth parallax push.
-      pointer.x += (pointer.tx - pointer.x) * 0.06;
-      pointer.y += (pointer.ty - pointer.y) * 0.06;
+      const ease = 1 - Math.pow(1 - 0.06, Math.max(steps, 1));
+      pointer.x += (pointer.tx - pointer.x) * ease;
+      pointer.y += (pointer.ty - pointer.y) * ease;
       const pushX = (pointer.x - 0.5) * 26;
       const pushY = (pointer.y - 0.5) * 26;
 
+      ctx.beginPath();
       for (const p of particles) {
-        if (animateMotion) {
-          p.x += p.vx;
-          p.y += p.vy;
-          if (p.x < -20) p.x = w + 20;
-          else if (p.x > w + 20) p.x = -20;
-          if (p.y < -20) p.y = h + 20;
-          else if (p.y > h + 20) p.y = -20;
-        }
+        p.x += p.vx * steps;
+        p.y += p.vy * steps;
+        if (p.x < -20) p.x = w + 20;
+        else if (p.x > w + 20) p.x = -20;
+        if (p.y < -20) p.y = h + 20;
+        else if (p.y > h + 20) p.y = -20;
         const dx = p.x + pushX;
         const dy = p.y + pushY;
-        ctx.beginPath();
+        ctx.moveTo(dx + p.r, dy);
         ctx.arc(dx, dy, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(${color}, 0.7)`;
-        ctx.fill();
       }
+      ctx.fillStyle = `rgba(${color}, 0.7)`;
+      ctx.fill();
 
-      // Proximity links.
+      // Proximity links, one path per opacity step.
+      const paths = Array.from({ length: LINK_STEPS }, () => new Path2D());
       for (let i = 0; i < particles.length; i++) {
         const a = particles[i]!;
         for (let j = i + 1; j < particles.length; j++) {
           const b = particles[j]!;
           const dx = a.x - b.x;
           const dy = a.y - b.y;
-          const dist = Math.hypot(dx, dy);
-          if (dist < LINK) {
-            const o = (1 - dist / LINK) * 0.35;
-            ctx.beginPath();
-            ctx.moveTo(a.x + pushX, a.y + pushY);
-            ctx.lineTo(b.x + pushX, b.y + pushY);
-            ctx.strokeStyle = `rgba(${color}, ${o})`;
-            ctx.lineWidth = 0.6;
-            ctx.stroke();
+          const d2 = dx * dx + dy * dy;
+          if (d2 < LINK * LINK) {
+            const step = Math.min(
+              LINK_STEPS - 1,
+              Math.floor((1 - Math.sqrt(d2) / LINK) * LINK_STEPS),
+            );
+            paths[step]!.moveTo(a.x + pushX, a.y + pushY);
+            paths[step]!.lineTo(b.x + pushX, b.y + pushY);
           }
         }
       }
+      ctx.lineWidth = 0.6;
+      paths.forEach((path, step) => {
+        ctx.strokeStyle = `rgba(${color}, ${(((step + 0.5) / LINK_STEPS) * 0.35).toFixed(3)})`;
+        ctx.stroke(path);
+      });
     };
 
-    const loop = () => {
-      draw(true);
+    const loop = (now: number) => {
       raf = requestAnimationFrame(loop);
+      const elapsed = now - lastDraw;
+      if (elapsed < FRAME_MS || now - lastScroll < SCROLL_REST_MS) return;
+      // Advance by elapsed time (capped, so a pause doesn't jump).
+      draw(Math.min(elapsed, 100) / (1000 / 60));
+      lastDraw = now;
     };
 
     const start = () => {
       if (running || reduced) return;
       running = true;
-      loop();
+      raf = requestAnimationFrame(loop);
     };
     const stop = () => {
       running = false;
       cancelAnimationFrame(raf);
+    };
+
+    const onScroll = () => {
+      lastScroll = performance.now();
     };
 
     const onPointer = (e: PointerEvent) => {
@@ -155,9 +178,10 @@ export function ParticleField({
     io.observe(parent);
 
     if (reduced) {
-      draw(false); // single static frame
+      draw(0); // single static frame
     } else {
       window.addEventListener("pointermove", onPointer, { passive: true });
+      window.addEventListener("scroll", onScroll, { passive: true });
     }
 
     return () => {
@@ -165,6 +189,7 @@ export function ParticleField({
       ro.disconnect();
       io.disconnect();
       window.removeEventListener("pointermove", onPointer);
+      window.removeEventListener("scroll", onScroll);
     };
   }, [reduced, density, color, max]);
 

@@ -8,32 +8,33 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "var(--color-background)",
-        surface: "var(--color-surface)",
-        "surface-elevated": "var(--color-surface-elevated)",
-        foreground: "var(--color-foreground)",
-        muted: "var(--color-muted)",
+        // Channel-based so `/opacity` modifiers work and [data-theme] can
+        // re-skin a section (see globals.css).
+        background: "rgb(var(--rgb-background) / <alpha-value>)",
+        surface: "rgb(var(--rgb-surface) / <alpha-value>)",
+        "surface-elevated": "rgb(var(--rgb-surface-elevated) / <alpha-value>)",
+        foreground: "rgb(var(--rgb-foreground) / <alpha-value>)",
+        muted: "rgb(var(--rgb-muted) / <alpha-value>)",
         accent: {
-          DEFAULT: "var(--color-accent)",
+          DEFAULT: "rgb(var(--rgb-accent) / <alpha-value>)",
           soft: "var(--color-accent-soft)",
-          // Dark-olive accent for text on cream surfaces (volt fails contrast).
-          ink: "rgb(92 110 17 / <alpha-value>)",
         },
         // Light-surface palette — rgb triplets so `/opacity` modifiers work;
         // keep in sync with the vars in globals.css.
         ink: "rgb(22 23 15 / <alpha-value>)",
-        // rgb twin of --color-accent: var()-based colors can't take `/opacity`
-        // modifiers, so tints of the accent (admin UI) use this instead.
+        // The brand volt regardless of [data-theme].
         volt: "rgb(198 241 53 / <alpha-value>)",
+        // The light surface: Lando-style warm near-white. ("cream" is
+        // historical — the tokens are the light palette, whatever its tint.)
         cream: {
-          DEFAULT: "rgb(231 226 212 / <alpha-value>)",
-          raised: "rgb(243 240 230 / <alpha-value>)",
-          deep: "rgb(221 216 198 / <alpha-value>)",
-          soft: "rgb(225 221 206 / <alpha-value>)",
+          DEFAULT: "rgb(252 252 250 / <alpha-value>)",
+          raised: "rgb(245 245 240 / <alpha-value>)",
+          deep: "rgb(233 234 228 / <alpha-value>)",
+          soft: "rgb(239 239 234 / <alpha-value>)",
         },
-        success: "var(--color-success)",
-        warning: "var(--color-warning)",
-        error: "var(--color-error)",
+        success: "rgb(var(--rgb-success) / <alpha-value>)",
+        warning: "rgb(var(--rgb-warning) / <alpha-value>)",
+        error: "rgb(var(--rgb-error) / <alpha-value>)",
         border: "var(--color-border)",
       },
       fontFamily: {

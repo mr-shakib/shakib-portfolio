@@ -29,7 +29,7 @@ export function StackSection({
     .filter((row) => row.items.length > 0);
 
   return (
-    <section id="skills" className="border-b border-border bg-transparent py-section">
+    <section id="skills" className="overflow-hidden border-b border-border bg-transparent py-section">
       <div className="container-content">
         <RevealOnScroll>
           <Eyebrow number="07">{content.eyebrow}</Eyebrow>

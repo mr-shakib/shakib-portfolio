@@ -5,6 +5,7 @@ import { Footer } from "@/components/layout/Footer";
 import { ScrollProgress } from "@/components/layout/ScrollProgress";
 import { CustomCursor } from "@/components/layout/CustomCursor";
 import { ViewTracker } from "@/components/layout/ViewTracker";
+import { ChapterTheme } from "@/components/layout/ChapterTheme";
 import { ParticleField } from "@/components/shared/ParticleField";
 import { Loader } from "@/components/sections/Loader";
 import { getSection } from "@/lib/data/sections";
@@ -37,12 +38,16 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         <ParticleField className="opacity-40" />
       </div>
 
+      {/* Cream layer that blends the page into each light chapter as you
+          scroll; above the particles so it fades them out too. */}
+      <ChapterTheme />
+
       {/* Lives outside <main> so its overlay stacks above the navbar; it only plays on the home page. */}
-      <Loader name={`${hero.firstName} ${hero.lastName}`} />
+      <Loader firstName={hero.firstName} lastName={hero.lastName} />
       <ViewTracker />
       <ScrollProgress />
       <CustomCursor />
-      <Navbar />
+      <Navbar firstName={hero.firstName} lastName={hero.lastName} />
       <MobileMenu />
       <main id="main" className="relative z-10">
         {children}

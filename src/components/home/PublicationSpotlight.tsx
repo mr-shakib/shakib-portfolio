@@ -22,9 +22,9 @@ export function PublicationSpotlight({
   const meta = [publication.venue, content.publisher, year].filter(Boolean).join(" · ");
 
   return (
-    <section id="featured-publication" className="bg-background">
+    <section id="featured-publication" data-theme="dark" className="bg-background">
       <ClipReveal>
-        <div className="bg-accent text-background">
+        <div data-nav="volt" className="bg-accent text-background">
           <div className="container-content py-section">
         <RevealOnScroll>
           <div className="flex flex-wrap items-center justify-between gap-4">

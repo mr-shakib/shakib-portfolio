@@ -57,31 +57,36 @@ export default async function HomePage() {
 
   return (
     <>
-      <HomeHero content={hero} />
+      <HomeHero content={hero} note={about} />
 
       {/* Brand band — volt on black, the repeated identity strip */}
       {marquees.top.length > 0 && (
-        <VelocityMarquee
-          items={marquees.top}
-          baseVelocity={1.6}
-          className="border-y-0 bg-accent py-3"
-          textClassName="font-display text-2xl uppercase text-background md:text-3xl"
-        />
+        <div data-theme="dark" data-nav="volt">
+          <VelocityMarquee
+            items={marquees.top}
+            baseVelocity={1.6}
+            className="border-y-0 bg-accent py-3"
+            textClassName="font-display text-2xl uppercase text-background md:text-3xl"
+          />
+        </div>
       )}
 
       <SignatureNote content={about} name={`${hero.firstName} ${hero.lastName}`} />
       <NumbersBand content={stats} />
 
-      {/* Mission statement — words brighten as you scroll through them */}
-      <section className="border-b border-border bg-transparent py-section">
-        <div className="container-content">
+      {/* Mission — a centered manifesto in mixed type: Anton caps with volt
+          serif emphasis, brightening word by word as you scroll. */}
+      <section className="py-section">
+        <div className="container-content flex flex-col items-center text-center">
           <RevealOnScroll>
             <Eyebrow number="03">{mission.eyebrow}</Eyebrow>
           </RevealOnScroll>
-          <div className="mt-8 max-w-5xl">
+          <div className="mt-10 max-w-6xl">
             <WordFill
               text={mission.text}
-              className="text-3xl font-semibold leading-[1.15] tracking-tight text-foreground md:text-5xl"
+              baseOpacity={0.12}
+              className="font-display text-[clamp(2.25rem,5.4vw,5.25rem)] uppercase leading-[1] text-foreground"
+              emphasisClassName="font-serif text-[1.18em] leading-[0.8] text-accent"
             />
           </div>
         </div>
@@ -94,12 +99,14 @@ export default async function HomePage() {
       <HallOfFame content={journey} />
 
       {marquees.bottom.length > 0 && (
-        <VelocityMarquee
-          items={marquees.bottom}
-          baseVelocity={-2}
-          className="bg-accent py-3"
-          textClassName="font-display text-2xl uppercase text-background md:text-3xl"
-        />
+        <div data-theme="dark" data-nav="volt">
+          <VelocityMarquee
+            items={marquees.bottom}
+            baseVelocity={-2}
+            className="bg-accent py-3"
+            textClassName="font-display text-2xl uppercase text-background md:text-3xl"
+          />
+        </div>
       )}
 
       <ContactCta content={contactCta} profile={profile} />

@@ -52,7 +52,8 @@ function NameChars({ name, layer }: { name: string; layer: "outline" | "fill" })
  * through. Plays once per session, on the home page only; reduced motion
  * skips straight to content.
  */
-export function Loader({ name }: { name: string }) {
+export function Loader({ firstName, lastName }: { firstName: string; lastName: string }) {
+  const name = `${firstName} ${lastName}`;
   const setLoaderComplete = useUIStore((s) => s.setLoaderComplete);
   const reduced = useReducedMotion();
   const isHome = usePathname() === "/";
@@ -133,11 +134,19 @@ export function Loader({ name }: { name: string }) {
       STEPS.forEach((step, i) => {
         const at = 0.35 + i * (STEP + HOLD);
 
-        tl.to(progress, { value: step.value, duration: STEP, ease: "expo.out", onUpdate: renderProgress }, at)
+        tl.to(
+          progress,
+          { value: step.value, duration: STEP, ease: "expo.out", onUpdate: renderProgress },
+          at,
+        )
           .add(scramble(step.label), at)
-          .call(() => {
-            if (stepRef.current) stepRef.current.textContent = pad(i + 1);
-          }, undefined, at);
+          .call(
+            () => {
+              if (stepRef.current) stepRef.current.textContent = pad(i + 1);
+            },
+            undefined,
+            at,
+          );
 
         // Odometer: roll each column forward to its next digit.
         String(step.value)
@@ -161,8 +170,11 @@ export function Loader({ name }: { name: string }) {
       });
 
       const done = 0.35 + STEPS.length * (STEP + HOLD);
-      tl.to(scanRef.current, { autoAlpha: 0, duration: 0.3 }, done)
-        .to("[data-ldr=dot]", { scale: 2.2, autoAlpha: 0, duration: 0.5, ease: "expo.out" }, done);
+      tl.to(scanRef.current, { autoAlpha: 0, duration: 0.3 }, done).to(
+        "[data-ldr=dot]",
+        { scale: 2.2, autoAlpha: 0, duration: 0.5, ease: "expo.out" },
+        done,
+      );
 
       // ── Exit: name drops out, then the column split ─────────────────────
       const exit = done + 0.15;
@@ -173,7 +185,11 @@ export function Loader({ name }: { name: string }) {
           exit,
         );
       });
-      tl.to("[data-ldr=meta]", { autoAlpha: 0, y: -12, duration: 0.35, ease: "power2.in" }, exit + 0.05)
+      tl.to(
+        "[data-ldr=meta]",
+        { autoAlpha: 0, y: -12, duration: 0.35, ease: "power2.in" },
+        exit + 0.05,
+      )
         .set("[data-ldr=base]", { autoAlpha: 0 }, exit + 0.5)
         // Release the hero as the panels start lifting so its entrance plays through the wipe.
         .call(
@@ -184,8 +200,16 @@ export function Loader({ name }: { name: string }) {
           undefined,
           exit + 0.5,
         )
-        .to("[data-ldr=col]", { yPercent: -100, duration: 0.8, ease: "expo.inOut", stagger: 0.06 }, exit + 0.5)
-        .to("[data-ldr=volt]", { yPercent: -100, duration: 0.8, ease: "expo.inOut", stagger: 0.06 }, exit + 0.62);
+        .to(
+          "[data-ldr=col]",
+          { yPercent: -100, duration: 0.8, ease: "expo.inOut", stagger: 0.06 },
+          exit + 0.5,
+        )
+        .to(
+          "[data-ldr=volt]",
+          { yPercent: -100, duration: 0.8, ease: "expo.inOut", stagger: 0.06 },
+          exit + 0.62,
+        );
 
       // Hold the sequence until the display face is ready so the name never swaps mid-reveal.
       let started = false;
@@ -238,10 +262,15 @@ export function Loader({ name }: { name: string }) {
 
       {/* Stage — hidden until fonts are ready and the timeline starts. */}
       <div aria-hidden data-ldr="stage" className="invisible absolute inset-0 flex flex-col">
-        {/* Top row — monogram sits exactly where the navbar's does, so it "stays" through the wipe. */}
+        {/* Top row — the wordmark sits exactly where the navbar's does, so it "stays" through the wipe. */}
         <div className="mt-4 flex h-11 items-center justify-between px-gutter md:mt-5">
-          <span data-ldr="meta" className="font-display text-2xl uppercase leading-none text-foreground">
-            SH<span className="text-accent">—</span>
+          <span data-ldr="meta" className="flex flex-col uppercase leading-[0.84] text-foreground">
+            <span className="font-display text-[1.15rem] tracking-[0.01em] md:text-[1.4rem]">
+              {firstName}
+            </span>
+            <span className="font-serif text-[1.2rem] text-accent md:text-[1.45rem]">
+              {lastName}
+            </span>
           </span>
           <span
             data-ldr="meta"
@@ -254,7 +283,7 @@ export function Loader({ name }: { name: string }) {
 
         {/* Center — hollow name that fills behind a volt scanline. */}
         <div className="flex flex-1 items-center justify-center px-gutter">
-          <div className="relative grid font-display text-[clamp(3.5rem,21vw,10rem)] sm:text-[clamp(2.25rem,10.5vw,10rem)] uppercase leading-[0.85]">
+          <div className="relative grid font-display text-[clamp(3.5rem,21vw,10rem)] uppercase leading-[0.85] sm:text-[clamp(2.25rem,10.5vw,10rem)]">
             <div
               className="col-start-1 row-start-1 whitespace-nowrap text-transparent"
               style={{ WebkitTextStroke: "1px rgb(245 245 243 / 0.28)" }}
@@ -276,7 +305,10 @@ export function Loader({ name }: { name: string }) {
 
         {/* Bottom row — decoding status line and a rolling odometer. */}
         <div className="flex items-end justify-between gap-6 px-gutter pb-6 md:pb-8">
-          <div data-ldr="meta" className="pb-2 font-grotesk text-[10px] uppercase tracking-[0.3em] text-muted md:pb-4">
+          <div
+            data-ldr="meta"
+            className="pb-2 font-grotesk text-[10px] uppercase tracking-[0.3em] text-muted md:pb-4"
+          >
             <p className="flex items-center gap-2.5 text-foreground">
               <span className="relative flex h-1.5 w-1.5">
                 <span data-ldr="dot" className="absolute inset-0 rounded-full bg-accent" />
