@@ -48,3 +48,6 @@ yarn-error.log*
 
 # admin uploads (local dev)
 /uploads
+
+# production database backups (VPS)
+/backups
