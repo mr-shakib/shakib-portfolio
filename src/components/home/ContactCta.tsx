@@ -13,9 +13,11 @@ import type { SectionContent } from "@/lib/sections/registry";
 export function ContactCta({
   content,
   profile,
+  number,
 }: {
   content: SectionContent<"contactCta">;
   profile: SectionContent<"profile">;
+  number: string;
 }) {
   return (
     <section
@@ -37,7 +39,7 @@ export function ContactCta({
 
       <div className="container-content relative">
         <RevealOnScroll>
-          <Eyebrow number="09">{content.eyebrow}</Eyebrow>
+          <Eyebrow number={number}>{content.eyebrow}</Eyebrow>
         </RevealOnScroll>
         <div className="mt-4">
           <SplitHeading

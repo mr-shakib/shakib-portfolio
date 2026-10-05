@@ -4,6 +4,7 @@ import { useId, useRef, useState } from "react";
 import type { Field, FileField, ListField } from "@/lib/admin/fields";
 import { emptyValues } from "@/lib/admin/fields";
 import { cn } from "@/lib/utils/cn";
+import { DistrictPicker } from "./DistrictPicker";
 
 export const inputClass =
   "w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-foreground placeholder:text-white/30 transition-colors hover:border-white/20 focus:border-accent focus:outline-none";
@@ -18,7 +19,7 @@ interface ControlProps {
   errors: Errors;
 }
 
-const WIDE = new Set<Field["kind"]>(["textarea", "lines", "tags", "list", "group", "file"]);
+const WIDE = new Set<Field["kind"]>(["textarea", "lines", "tags", "districts", "list", "group", "file"]);
 
 /** Lays out a field list as a responsive two-column grid. */
 export function FieldGrid({
@@ -215,6 +216,17 @@ export function FieldControl({ field, value, onChange, path, errors }: ControlPr
           <Label htmlFor={id} field={field} error={error} />
           <TagsInput id={id} value={Array.isArray(value) ? (value as string[]) : []} onChange={onChange} />
           <Help text={field.help ?? "Press Enter or comma to add."} />
+        </div>
+      );
+
+    case "districts":
+      return (
+        <div>
+          <Label field={field} error={error} />
+          <Help text={field.help} />
+          <div className="mt-3">
+            <DistrictPicker value={Array.isArray(value) ? (value as string[]) : []} onChange={onChange} />
+          </div>
         </div>
       );
 

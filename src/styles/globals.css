@@ -380,3 +380,20 @@ html.chapters-live[data-tone="cream"] {
   --color-accent-soft: rgba(198, 241, 53, 0.3);
   --color-border: rgba(22, 23, 15, 0.12);
 }
+
+/* ── Travel map ──────────────────────────────────────────────────────────
+   Visited districts fill in outward from the home district (each path's
+   --delay) when the map scrolls into view; TravelMapFrame sets data-reveal.
+   Without it — no JS, reduced motion — they're simply lit. */
+[data-reveal="armed"] .map-visited {
+  fill: rgb(var(--rgb-foreground) / 0.07);
+}
+[data-reveal="play"] .map-visited {
+  animation: map-fill 0.8s var(--ease-out-expo) backwards;
+  animation-delay: var(--delay, 0ms);
+}
+@keyframes map-fill {
+  from {
+    fill: rgb(var(--rgb-foreground) / 0.07);
+  }
+}

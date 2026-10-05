@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isDistrictId, type DistrictId } from "@/lib/maps/districts";
 
 /**
  * Field definitions are the single source of truth for every editable thing
@@ -73,6 +74,11 @@ export interface LinesField extends BaseField {
   rows?: number;
 }
 
+/** Bangladesh districts, picked on a clickable map. Stored as district ids. */
+export interface DistrictsField extends BaseField {
+  kind: "districts";
+}
+
 /** Repeatable group of sub-fields (stats, timeline items, links). */
 export interface ListField extends BaseField {
   kind: "list";
@@ -97,6 +103,7 @@ export type Field =
   | FileField
   | TagsField
   | LinesField
+  | DistrictsField
   | ListField
   | GroupField;
 
@@ -114,11 +121,13 @@ export type FieldValue<F extends Field> = F extends { kind: "text" | "textarea" 
           ? Date
           : F extends { kind: "tags" | "lines" }
             ? string[]
-            : F extends { kind: "list"; fields: infer S extends readonly Field[] }
-              ? ValuesOf<S>[]
-              : F extends { kind: "group"; fields: infer S extends readonly Field[] }
-                ? ValuesOf<S>
-                : never;
+            : F extends { kind: "districts" }
+              ? DistrictId[]
+              : F extends { kind: "list"; fields: infer S extends readonly Field[] }
+                ? ValuesOf<S>[]
+                : F extends { kind: "group"; fields: infer S extends readonly Field[] }
+                  ? ValuesOf<S>
+                  : never;
 
 /** The validated data shape described by a field list. */
 export type ValuesOf<FS extends readonly Field[]> = {
@@ -193,6 +202,12 @@ function fieldSchema(f: Field): z.ZodTypeAny {
         .array(z.string())
         .transform((items) => items.map((s) => s.trim()).filter(Boolean))
         .pipe(z.array(z.string().max(1_000)).max(100, "Too many items"));
+    case "districts":
+      // Unknown ids are dropped rather than rejected, so a renamed district
+      // can't knock a whole saved section back to its defaults.
+      return z
+        .array(z.string())
+        .transform((ids) => [...new Set(ids)].filter(isDistrictId));
     case "list":
       return z.array(objectSchema(f.fields)).max(f.max ?? 50, `At most ${f.max ?? 50} items`);
     case "group":
@@ -240,6 +255,7 @@ export function emptyValue(f: Field): unknown {
       return new Date().toISOString().slice(0, 10);
     case "tags":
     case "lines":
+    case "districts":
     case "list":
       return [];
     case "group":

@@ -2,6 +2,7 @@ import type { Field, ValuesOf } from "@/lib/admin/fields";
 import { aboutTimeline, heroRoles, statsContent } from "@/content/stats";
 import { researchMeta, researchStatement } from "@/content/research";
 import { siteConfig, socialLinks } from "@/config/site";
+import { DISTRICTS } from "@/lib/maps/districts";
 
 /**
  * Every editable block of copy on the site. A section's `defaults` are what
@@ -332,11 +333,42 @@ export const sections = {
     },
   }),
 
+  travelMap: defineSection({
+    label: "Travel map",
+    group: "Home page",
+    href: "/#travel",
+    description: "The Bangladesh map (section 09): every district you’ve been to lights up in volt.",
+    fields: [
+      { kind: "boolean", name: "show", label: "Show on the home page" },
+      { kind: "text", name: "eyebrow", label: "Eyebrow" },
+      { kind: "text", name: "headingTop", label: "Heading — line 1" },
+      { kind: "text", name: "headingBottom", label: "Heading — line 2 (serif)" },
+      { kind: "textarea", name: "intro", label: "Intro", rows: 3 },
+      {
+        kind: "select",
+        name: "home",
+        label: "Home district",
+        options: [{ value: "", label: "None" }, ...DISTRICTS.map((d) => ({ value: d.id, label: d.name }))],
+        help: "Marked with a pin; the map fills in outward from it. Counts as visited.",
+      },
+      { kind: "districts", name: "visited", label: "Districts visited", help: "Click districts on the map or pick them by division." },
+    ],
+    defaults: {
+      show: true,
+      eyebrow: "Off the clock",
+      headingTop: "On the",
+      headingBottom: "Road",
+      intro: "Every district I’ve set foot in, lit up. The grey ones are the to-do list.",
+      home: "dhaka",
+      visited: ["dhaka"],
+    },
+  }),
+
   contactCta: defineSection({
     label: "Let’s Build It",
     group: "Home page",
     href: "/#contact",
-    description: "Closing call-to-action (section 09). Email and social links come from “Contact details”.",
+    description: "Closing call-to-action (section 10, or 09 while the travel map is hidden). Email and social links come from “Contact details”.",
     fields: [
       { kind: "text", name: "eyebrow", label: "Eyebrow" },
       { kind: "text", name: "headingTop", label: "Heading — line 1" },

@@ -6,6 +6,7 @@ import { PublicationSpotlight } from "@/components/home/PublicationSpotlight";
 import { WildSection } from "@/components/home/WildSection";
 import { StackSection } from "@/components/home/StackSection";
 import { HallOfFame } from "@/components/home/HallOfFame";
+import { TravelMap } from "@/components/home/TravelMap";
 import { ContactCta } from "@/components/home/ContactCta";
 import { VelocityMarquee } from "@/components/shared/VelocityMarquee";
 import { WordFill } from "@/components/shared/WordFill";
@@ -34,6 +35,7 @@ export default async function HomePage() {
     wild,
     stack,
     journey,
+    travelMap,
     contactCta,
     profile,
   ] = await Promise.all([
@@ -51,6 +53,7 @@ export default async function HomePage() {
     getSection("wild"),
     getSection("stack"),
     getSection("journey"),
+    getSection("travelMap"),
     getSection("contactCta"),
     getSection("profile"),
   ]);
@@ -97,6 +100,7 @@ export default async function HomePage() {
       <WildSection content={wild} projects={projects} />
       <StackSection content={stack} skills={skills} />
       <HallOfFame content={journey} />
+      {travelMap.show && <TravelMap content={travelMap} number="09" />}
 
       {marquees.bottom.length > 0 && (
         <div data-theme="dark" data-nav="volt">
@@ -109,7 +113,7 @@ export default async function HomePage() {
         </div>
       )}
 
-      <ContactCta content={contactCta} profile={profile} />
+      <ContactCta content={contactCta} profile={profile} number={travelMap.show ? "10" : "09"} />
     </>
   );
 }
