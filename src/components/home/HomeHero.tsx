@@ -16,6 +16,7 @@ import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { scrollToId } from "@/lib/animations/lenis";
 import type { SectionContent } from "@/lib/sections/registry";
 import { PortraitReveal } from "@/components/shared/PortraitReveal";
+import { HeroPour } from "@/components/home/HeroPour";
 import { TrailSmear } from "@/components/shared/TrailSmear";
 import { createLiquidTrail, type LiquidTrail } from "@/lib/animations/liquidTrail";
 import { cn } from "@/lib/utils/cn";
@@ -107,6 +108,9 @@ function SlidingLine({
  * mixed type behind it, its label appears above, and the signature draws
  * itself across the card. Then the pin releases. Reduced motion keeps the
  * static poster (the note then plays in its own section instead).
+ *
+ * On the first load the poster pours in through a volt pool (HeroPour)
+ * while the portrait rises through it; client navigations back skip that.
  */
 export function HomeHero({
   content,
@@ -115,10 +119,15 @@ export function HomeHero({
   content: SectionContent<"hero">;
   note: SectionContent<"about">;
 }) {
-  const loaderComplete = useUIStore((s) => s.loaderComplete);
   const reduced = useReducedMotion();
-  const animate = loaderComplete && !reduced;
   const sequence = !reduced;
+
+  // ── First-load pour ───────────────────────────────────────────────────
+  const setIntroPlayed = useUIStore((s) => s.setIntroPlayed);
+  const [pouring, setPouring] = useState(() => !useUIStore.getState().introPlayed);
+  // Fixed at mount: the portrait waits for the first drop to open.
+  const [lead] = useState(() => (pouring ? 0.3 : 0));
+  useEffect(() => setIntroPlayed(true), [setIntroPlayed]);
 
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
@@ -201,8 +210,10 @@ export function HomeHero({
   );
 
   // The header reads the stage: volt frame at rest, ink once it darkens.
+  // Scrolling cuts the pour short — the pool can't follow the receding card.
   useMotionValueEvent(p, "change", (v) => {
     stageRef.current?.setAttribute("data-nav", v < 0.12 ? "volt" : "dark");
+    if (v > 0.01) setPouring(false);
   });
 
   const name = `${content.firstName} ${content.lastName}`;
@@ -211,8 +222,8 @@ export function HomeHero({
   const lineXs = [lineX0, lineX1, lineX2];
   const fadeIn = (delay: number) => ({
     initial: reduced ? false : ({ opacity: 0, y: 14 } as const),
-    animate: animate || reduced ? { opacity: 1, y: 0 } : {},
-    transition: { duration: 0.8, delay, ease: EASE },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.8, delay: delay + lead, ease: EASE },
   });
 
   const poster = (
@@ -240,8 +251,8 @@ export function HomeHero({
           <motion.div
             className="absolute inset-x-0 bottom-0 top-[4.75rem] mx-auto w-[min(100%,34rem)] md:top-[5.25rem] md:w-[min(82%,46rem)] lg:w-[min(60%,56rem)]"
             initial={reduced ? false : { opacity: 0, y: 70 }}
-            animate={animate || reduced ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 1.3, delay: 0.25, ease: EASE }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1.3, delay: 0.25 + lead, ease: EASE }}
             style={
               sequence
                 ? { x: portraitX, scale: portraitZoom, transformOrigin: "50% 30%" }
@@ -254,7 +265,7 @@ export function HomeHero({
               alt={name}
               priority
               sizes="(max-width: 768px) 100vw, (max-width: 1024px) 46rem, 56rem"
-              hint={animate}
+              hint={!reduced}
               trail={trail}
               fade="sides"
               className="absolute inset-0"
@@ -329,8 +340,8 @@ export function HomeHero({
           type="button"
           onClick={() => scrollToId("about")}
           initial={reduced ? false : { opacity: 0 }}
-          animate={animate || reduced ? { opacity: 1 } : {}}
-          transition={{ duration: 0.8, delay: 2, ease: EASE }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.8, delay: 2 + lead, ease: EASE }}
           className="group relative flex h-full w-full items-center justify-center gap-2.5 pt-0.5 font-grotesk text-[10px] uppercase tracking-[0.3em] text-ink/70 transition-colors hover:text-ink"
         >
           Scroll
@@ -392,6 +403,9 @@ export function HomeHero({
         >
           {poster}
         </motion.div>
+
+        {/* First load: the volt pool the poster pours in through. */}
+        {pouring && <HeroPour onDone={() => setPouring(false)} />}
 
         {/* Label above the card. */}
         <motion.p

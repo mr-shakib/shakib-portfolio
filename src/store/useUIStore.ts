@@ -5,8 +5,9 @@ interface UIState {
   setMenuOpen: (open: boolean) => void;
   toggleMenu: () => void;
 
-  loaderComplete: boolean;
-  setLoaderComplete: (done: boolean) => void;
+  /** The hero's pour entrance has played this page load (client navigations skip it). */
+  introPlayed: boolean;
+  setIntroPlayed: (played: boolean) => void;
 
   /** Normalized pointer position (-1..1) shared with the 3D scene. */
   pointer: { x: number; y: number };
@@ -26,8 +27,8 @@ export const useUIStore = create<UIState>((set) => ({
   setMenuOpen: (open) => set({ menuOpen: open }),
   toggleMenu: () => set((s) => ({ menuOpen: !s.menuOpen })),
 
-  loaderComplete: false,
-  setLoaderComplete: (done) => set({ loaderComplete: done }),
+  introPlayed: false,
+  setIntroPlayed: (played) => set({ introPlayed: played }),
 
   pointer: { x: 0, y: 0 },
   setPointer: (x, y) => set({ pointer: { x, y } }),

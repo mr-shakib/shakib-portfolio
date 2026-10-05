@@ -85,7 +85,7 @@ export function Navbar({ firstName, lastName }: { firstName: string; lastName: s
     setHidden(false);
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll);
-    // Surfaces also change without scrolling (the loader lifting, route
+    // Surfaces also change without scrolling (the hero's pour, route
     // changes, sections revealing), so re-check on a slow interval too.
     const poll = window.setInterval(onScroll, 400);
     return () => {

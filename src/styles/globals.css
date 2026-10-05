@@ -397,3 +397,52 @@ html.chapters-live[data-tone="cream"] {
     fill: rgb(var(--rgb-foreground) / 0.07);
   }
 }
+
+/* ── Hero pour ───────────────────────────────────────────────────────────
+   The first-load entrance (HeroPour.tsx). The first drop opens on the face
+   and holds while satellites bloom further out and drift in toward it; then
+   it floods the field, slow at first so each satellite bridges into it (the
+   goo filter) before it's swallowed, accelerating to fill the corners.
+   Plain CSS so it plays from first paint; the reduced-motion rule above
+   ends it instantly. In SVG, transform px are user units. */
+.pour-drop,
+.pour-flood {
+  transform-box: fill-box;
+  transform-origin: center;
+  transform: scale(0);
+  animation-fill-mode: both;
+}
+.pour-drop {
+  animation-name: pour-drop;
+  animation-duration: 1.1s;
+}
+.pour-flood {
+  animation-name: pour-flood;
+  animation-duration: 1.5s;
+}
+@keyframes pour-drop {
+  0% {
+    transform: translate(var(--dx), var(--dy)) scale(0);
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  45% {
+    transform: translate(calc(var(--dx) * 0.45), calc(var(--dy) * 0.45)) scale(0.8);
+    animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+@keyframes pour-flood {
+  0% {
+    transform: scale(0);
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  26% {
+    transform: scale(0.15);
+    animation-timing-function: cubic-bezier(0.11, 0, 0.5, 0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}

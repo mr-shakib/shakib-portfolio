@@ -7,7 +7,6 @@ import { CustomCursor } from "@/components/layout/CustomCursor";
 import { ViewTracker } from "@/components/layout/ViewTracker";
 import { ChapterTheme } from "@/components/layout/ChapterTheme";
 import { ParticleField } from "@/components/shared/ParticleField";
-import { Loader } from "@/components/sections/Loader";
 import { getSection } from "@/lib/data/sections";
 
 /**
@@ -42,8 +41,6 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
           scroll; above the particles so it fades them out too. */}
       <ChapterTheme />
 
-      {/* Lives outside <main> so its overlay stacks above the navbar; it only plays on the home page. */}
-      <Loader firstName={hero.firstName} lastName={hero.lastName} />
       <ViewTracker />
       <ScrollProgress />
       <CustomCursor />
