@@ -337,13 +337,10 @@ export const sections = {
     label: "Travel map",
     group: "Home page",
     href: "/#travel",
-    description: "The Bangladesh map (section 09): every district you’ve been to lights up in volt.",
+    description:
+      "The Bangladesh map (section 09). Pick the districts you’ve been to below — they light up in volt on the home page.",
     fields: [
       { kind: "boolean", name: "show", label: "Show on the home page" },
-      { kind: "text", name: "eyebrow", label: "Eyebrow" },
-      { kind: "text", name: "headingTop", label: "Heading — line 1" },
-      { kind: "text", name: "headingBottom", label: "Heading — line 2 (serif)" },
-      { kind: "textarea", name: "intro", label: "Intro", rows: 3 },
       {
         kind: "select",
         name: "home",
@@ -352,6 +349,10 @@ export const sections = {
         help: "Marked with a pin; the map fills in outward from it. Counts as visited.",
       },
       { kind: "districts", name: "visited", label: "Districts visited", help: "Click districts on the map or pick them by division." },
+      { kind: "text", name: "eyebrow", label: "Eyebrow" },
+      { kind: "text", name: "headingTop", label: "Heading — line 1" },
+      { kind: "text", name: "headingBottom", label: "Heading — line 2 (serif)" },
+      { kind: "textarea", name: "intro", label: "Intro", rows: 3 },
     ],
     defaults: {
       show: true,

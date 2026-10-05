@@ -8,7 +8,13 @@ import { cn } from "@/lib/utils/cn";
 
 const GROUPS: { title?: string; links: { href: string; label: string }[] }[] = [
   { links: [{ href: "/admin", label: "Dashboard" }] },
-  { title: "Site", links: [{ href: "/admin/sections", label: "Sections" }] },
+  {
+    title: "Site",
+    links: [
+      { href: "/admin/sections", label: "Sections" },
+      { href: "/admin/sections/travelMap", label: "Travel map" },
+    ],
+  },
   {
     title: "Content",
     links: [
@@ -28,8 +34,14 @@ const GROUPS: { title?: string; links: { href: string; label: string }[] }[] = [
 export function AdminNav({ email, unread }: { email: string; unread: number }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const isActive = (href: string) =>
+  // The most specific matching link wins, so a shortcut into a section
+  // doesn't also light up "Sections".
+  const matches = (href: string) =>
     href === "/admin" ? pathname === "/admin" : pathname === href || pathname.startsWith(`${href}/`);
+  const active = GROUPS.flatMap((g) => g.links.map((l) => l.href))
+    .filter(matches)
+    .sort((a, b) => b.length - a.length)[0];
+  const isActive = (href: string) => href === active;
 
   return (
     <aside className="border-b border-white/10 bg-surface lg:sticky lg:top-0 lg:flex lg:h-svh lg:w-60 lg:shrink-0 lg:flex-col lg:border-b-0 lg:border-r">
