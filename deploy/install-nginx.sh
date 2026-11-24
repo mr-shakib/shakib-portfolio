@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # One-time host setup: the nginx site and Let's Encrypt certificate for
-# shakibhowlader.online. Run from the checkout on the VPS:
+# shakibhowlader.site. Run from the checkout on the VPS:
 #
 #   sudo bash deploy/install-nginx.sh
 #
@@ -8,7 +8,7 @@
 # reverts them so the other sites on the server keep running.
 set -euo pipefail
 
-DOMAIN=shakibhowlader.online
+DOMAIN=shakibhowlader.site
 NAMES=("$DOMAIN" "www.$DOMAIN")
 EMAIL=contactshakibhere@gmail.com
 SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/nginx/$DOMAIN.conf"

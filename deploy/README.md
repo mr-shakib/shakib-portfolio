@@ -1,7 +1,7 @@
 # Deployment
 
 Production runs on the VPS (`shakib@187.53.136.115`) at
-<https://shakibhowlader.online>, next to other projects on the same host.
+<https://shakibhowlader.site>, next to other projects on the same host.
 
 ```
 push to main ─▶ GitHub Actions ─▶ typecheck + lint ─▶ build image ─▶ ghcr.io/mr-shakib/shakib-portfolio:<sha>
@@ -9,7 +9,7 @@ push to main ─▶ GitHub Actions ─▶ typecheck + lint ─▶ build image �
                                    ssh (key limited to deploy/deploy.sh) ◀┘
                                                    │
 VPS  ~/shakib-portfolio ─ docker-compose.prod.yml: app (127.0.0.1:3350) + db (Postgres 16)
-     host nginx ─ shakibhowlader.online ─▶ 127.0.0.1:3350
+     host nginx ─ shakibhowlader.site ─▶ 127.0.0.1:3350
 ```
 
 Pull requests run the checks and build the image without pushing or deploying.
@@ -59,7 +59,7 @@ Already done for this server. These steps are for rebuilding it from scratch.
 | `VPS_KNOWN_HOSTS`      | secret   | `ssh-keyscan -t ed25519 187.53.136.115` (fingerprint checked) |
 | `VPS_HOST`             | variable | `187.53.136.115`                                            |
 | `VPS_USER`             | variable | `shakib`                                                    |
-| `NEXT_PUBLIC_SITE_URL` | variable | `https://shakibhowlader.online`                             |
+| `NEXT_PUBLIC_SITE_URL` | variable | `https://shakibhowlader.site`                               |
 
 **VPS**
 
@@ -76,7 +76,7 @@ the deploy script:
 command="/home/shakib/shakib-portfolio/deploy/deploy.sh",restrict ssh-ed25519 AAAA… github-actions@shakib-portfolio
 ```
 
-Point DNS for `shakibhowlader.online` and `www.shakibhowlader.online` at the
+Point DNS for `shakibhowlader.site` and `www.shakibhowlader.site` at the
 VPS, then set up nginx and the certificate (needs sudo):
 
 ```bash
